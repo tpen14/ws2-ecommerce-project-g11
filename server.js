@@ -8,7 +8,10 @@ const app = express();
 const port = 3000;
 
 
-
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+console.log(` Server running on port ${PORT}`);
+});
 
 
 // Middleware
@@ -39,4 +42,7 @@ console.log(`Server running at http://localhost:${port}`);
 console.error("MongoDB connection failed", err);
 }
 }
+
+
+
 main();
