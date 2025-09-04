@@ -7,12 +7,6 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-/*
-app.listen(PORT, () => {
-    console.log( Server running on port ${PORT});
-});
-*/
-
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
@@ -45,15 +39,6 @@ async function main() {
     try {
         await client.connect();
         console.log("Connected to MongoDB Atlas");
-        /*
-        // Select database
-        const database = client.db("ecommerceDB");
-        // Temporary test route
-        app.get('/', (req, res) => {
-        res.send("Hello, MongoDB is connected!");
-        });
-        */
-        // Start server
         app.listen(PORT, () => {
         console.log(`Server running at http://localhost:${PORT}`);
         });
