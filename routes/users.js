@@ -37,19 +37,19 @@ try {
     tokenExpiry: new Date(Date.now() + 3600000), // expires in 1 hour
     createdAt: currentDate,
     updatedAt: currentDate
-};
-// 5. Insert into database
-await usersCollection.insertOne(newUser);
-// 6. Simulated verification link
-res.send(`
-<h2>Registration Successful!</h2>
-<p>Please verify your account before logging in.</p>
-<p><a href="/users/verify/${token}">Click here to verify</a></p>
-`);
-} catch (err) {
-console.error("Error saving user:", err);
-res.send("Something went wrong.");
-}
+    };
+    // 5. Insert into database
+    await usersCollection.insertOne(newUser);
+    // 6. Simulated verification link
+    res.send(`
+    <h2>Registration Successful!</h2>
+    <p>Please verify your account before logging in.</p>
+    <p><a href="/users/verify/${token}">Click here to verify</a></p>
+    `);
+    } catch (err) {
+    console.error("Error saving user:", err);
+    res.send("Something went wrong.");
+    }
 });
 
 // Email Verification Route
