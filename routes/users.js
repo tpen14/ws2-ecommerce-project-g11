@@ -3,6 +3,12 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+
+
+
 
 // Show registration form
 router.get('/register', (req, res) => {
@@ -23,6 +29,9 @@ try {
     const currentDate = new Date();
     // 3. Create verification token
     const token = uuidv4();
+    // Base URL: local (http://localhost:3000) or deployed (https://yourapp.onrender.com)
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const verificationUrl = `${baseUrl}/users/verify/${token}`;
     // 4. Build new user object
     const newUser = {
     userId: uuidv4(), // unique ID for the user
@@ -40,17 +49,30 @@ try {
     };
     // 5. Insert into database
     await usersCollection.insertOne(newUser);
+
+    // Send verification email using Resend
+   await resend.emails.send({
+                from: process.env.RESEND_FROM_EMAIL,
+                to: newUser.email,
+                subject: 'Verify your account',
+                html: `
+                    <h2>Welcome, ${newUser.firstName}!</h2>
+                    <p>Thank you for registering. Please verify your email by clicking the link below:</p>
+                    <a href="${verificationUrl}">${verificationUrl}</a>
+                `
+    });
     // 6. Simulated verification link
     res.send(`
     <h2>Registration Successful!</h2>
-    <p>Please verify your account before logging in.</p>
-    <p><a href="/users/verify/${token}">Click here to verify</a></p>
+    <p>Please verify your account before logging in. Please check your email for your verification link.</p>
+    <p><a href="/users/login">Go to log-in page</a></p>
     `);
     } catch (err) {
     console.error("Error saving user:", err);
     res.send("Something went wrong.");
     }
 });
+
 
 // Email Verification Route
 router.get('/verify/:token', async (req, res) => {
