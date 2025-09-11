@@ -17,27 +17,20 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'dev-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-    secure: false, // set to true only if using HTTPS
-    maxAge: 15 * 60 * 1000 // 15 minutes (in milliseconds)
-    }
-    }));
 
-// // Session setup
-// app.use(session({
-// secret: process.env.SESSION_SECRET || 'dev-secret', // keep secret in .env
-// resave: false,
-// saveUninitialized: false,
-// cookie: { secure: false } // set true in production with HTTPS
-// }));
+// Session setup
+app.use(session({
+secret: process.env.SESSION_SECRET || 'dev-secret', // keep secret in .env
+resave: false,
+saveUninitialized: false,
+cookie: { secure: false } // set true in production with HTTPS
+}));
 
 // Routes <-- Update
 const indexRoute = require('./routes/index');
 const usersRoute = require('./routes/users');
+const passwordRoute = require('./routes/password');
+app.use('/password', passwordRoute);
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 
@@ -49,17 +42,17 @@ const client = new MongoClient(uri);
 app.locals.client = client;
 app.locals.dbName = process.env.DB_NAME || "ecommerceDB";
 
-async function main() {
-try {
+    async function main() {
+        try {
 
-await client.connect();
-console.log("Connected to MongoDB Atlas");
-// Start server
-app.listen(PORT, () => {
-console.log(`Server running on port ${PORT}`);
-});
-} catch (err) {
-console.error("MongoDB connection failed", err);
-}
-}
+            await client.connect();
+            console.log("Connected to MongoDB Atlas");
+            // Start server
+            app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+            });
+        } catch (err) {
+            console.error("MongoDB connection failed", err);
+        }
+    }
 main();

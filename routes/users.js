@@ -193,16 +193,12 @@ router.get('/dashboard', (req, res) => {
 if (!req.session.user) return res.redirect('/users/login');
 res.render('dashboard', { title: "User Dashboard", user: req.session.user });
 });
-// Logout route
+// Logout
 router.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-    if (err) {
-    console.error("Error destroying session:", err);
-    return res.send("Something went wrong during logout.");
-    }
-    res.redirect('/users/login');
-    });
-    });
+req.session.destroy();
+res.redirect('/users/login');
+});
+
 // Show all registered users
 router.get('/list', async (req, res) => {
     try {
