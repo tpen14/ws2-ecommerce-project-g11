@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="add-product-page">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+          <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+        </a>
+
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/">Home</a></li>
+            <li><a href="/products" class="active">Products</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <div class="add-product-container">
+        <div class="dashboard-header">
+            <h1>Add New Product</h1>
+            <a href="/products" class="back-link">← Back to Products</a>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success">
+                <%= success %>
+            </div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger">
+                <%= error %>
+            </div>
+        <% } %>
+        
+        <div class="form-wrapper">
+            <form action="/products/add-product" method="POST" class="add-product-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="productName">Product Name *</label>
+                    <input type="text" id="productName" name="productName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="price">Price (in PHP) *</label>
+                    <div class="price-input-wrapper">
+                        <span class="price-symbol">₱</span>
+                        <input type="number" id="price" name="price" min="0.01" step="0.01" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productImage">Product Image</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="productImage" name="productImage" accept="image/*">
+                        <div class="file-preview-container" id="imagePreview"></div>
+                    </div>
+                    <p class="help-text">Upload a product image (JPG, PNG, or GIF)</p>
+                </div>
+   
+                <div class="form-actions">
+                    <button type="submit" class="primary-button">Add Product</button>
+                    <a href="/products" class="secondary-button">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/products">Products</a></li>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="/terms">Terms of Service</a></li>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/return-policy">Return Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; <%= new Date().getFullYear() %> Chonccolate. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript for mobile menu toggle and image preview -->
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navbarLinks').classList.toggle('active');
+            document.getElementById('authButtons').classList.toggle('active');
+        });
+        
+        // Image preview functionality
+        document.getElementById('productImage').addEventListener('change', function(event) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                
+                // Check if file is an image
+                if (!file.type.match('image.*')) {
+                    preview.innerHTML = '<p class="error-text">Selected file is not an image</p>';
+                    return;
+                }
+                
+                // Check file size (limit to 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    preview.innerHTML = '<p class="error-text">Image size should be less than 5MB</p>';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-image';
+                    preview.appendChild(img);
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>

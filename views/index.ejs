@@ -1,10 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title><%= title %></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
-<h1><%= message %></h1>
-<p>Welcome to your WS2 E-commerce Project!</p>
+<body class="has-hero">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+            </a>
+        
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/">About</a></li>
+            <li><a href="/">Contact</a></li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome to Chonccolate!</h1>
+            <p>Your one-stop shop for premium chocolate delights</p>
+            <a href="/products" class="hero-button">Shop Now</a>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="footer-container">
+
+        
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-section">
+            <h3>Legal</h3>
+            <ul>
+                <li><a href="/terms">Terms of Service</a></li>
+                <li><a href="/privacy">Privacy Policy</a></li>
+                <li><a href="/return-policy">Return Policy</a></li>
+            </ul>
+        </div>
+        
+     
+    <div class="footer-bottom">
+        <p>&copy; <%= new Date().getFullYear() %> Chonccolate. All rights reserved.</p>
+    </div>
+</footer>
+    
 </body>
+
 </html>

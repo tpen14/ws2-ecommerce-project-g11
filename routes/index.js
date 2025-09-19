@@ -3,6 +3,10 @@ const express = require('express');
 const router = express.Router();
 // Home route
 router.get('/', (req, res) => {
-res.render('index', { title: "Home Page", message: "Hello, MongoDB is connected!" });
+    // Pass the session user to the view
+    res.render('index', { 
+        title: 'Home',
+        user: req.session.user || null 
+    });
 });
 module.exports = router;

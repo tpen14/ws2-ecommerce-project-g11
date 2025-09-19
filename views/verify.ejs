@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .verification-container {
+            max-width: 600px;
+            margin: 120px auto 50px;
+            padding: 2rem;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .verification-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .success-icon {
+            color: #28a745;
+        }
+        
+        .error-icon {
+            color: #dc3545;
+        }
+        
+        .expired-icon {
+            color: #ffc107;
+        }
+        
+        .verification-title {
+            margin-bottom: 1rem;
+            color: var(--dark-brown);
+        }
+        
+        .verification-message {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            color: #555;
+        }
+        
+        .verification-action {
+            margin-top: 1.5rem;
+        }
+        
+        .verification-button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--medium-brown);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .verification-button:hover {
+            background-color: var(--dark-brown);
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+       <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+        </a>
+        
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+        
+        <div class="auth-buttons" id="authButtons">
+            <a href="/users/login" class="auth-button login">Login</a>
+            <a href="/users/register" class="auth-button register">Register</a>
+        </div>
+    </nav>
+
+    <div class="verification-container">
+        <% if (success) { %>
+            <div class="verification-icon success-icon">✓</div>
+            <h1 class="verification-title">Email Verified Successfully!</h1>
+            <p class="verification-message">
+                Your account has been verified. You can now log in and access all features of our website.
+            </p>
+            <div class="verification-action">
+                <a href="/users/login" class="verification-button">Log In Now</a>
+            </div>
+        <% } else if (expired) { %>
+            <div class="verification-icon expired-icon">⚠</div>
+            <h1 class="verification-title">Verification Link Expired</h1>
+            <p class="verification-message">
+                This verification link has expired. Please request a new verification email.
+            </p>
+            <div class="verification-action">
+                <a href="/users/resend-verification" class="verification-button">Request New Link</a>
+            </div>
+        <% } else { %>
+            <div class="verification-icon error-icon">✕</div>
+            <h1 class="verification-title">Verification Failed</h1>
+            <p class="verification-message">
+                <%= message %>
+            </p>
+            <div class="verification-action">
+                <a href="/users/login" class="verification-button">Back to Login</a>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- JavaScript for mobile menu toggle -->
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navbarLinks').classList.toggle('active');
+            document.getElementById('authButtons').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

@@ -1,22 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title><%= title %></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<h1>Welcome, <%= user.firstName %> <%= user.lastName %>!</h1>
-<p><strong>User ID:</strong> <%= user.userId %></p>
-<p><strong>Email:</strong> <%= user.email %></p>
-<p><strong>Role:</strong> <%= user.role %></p>
-<p><strong>Status:</strong> Active</p>
-<p><strong>Email Verified:</strong> <%= user.isEmailVerified ? "Yes" : "No" %></p>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+         <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+        Chonccolate
+        </a>
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <% if (user.role === 'admin') { %>
+                <li><a href="/products/add-product">Add Product</a></li>
+            <% } %>
+            <li><a href="/">About</a></li>
+            <li><a href="/">Contact</a></li>
+        </ul>
+        
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
 
-<ul>
-<li><a href="#">Edit Profile</a></li>
-<% if (user.role === 'admin') { %>
-<li><a href="/users/admin">Admin Dashboard</a></li>
-<% } %>
-</ul>
-<a href="/users/logout">Logout</a>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Welcome, <%= user.firstName %> <%= user.lastName %>!</h1>
+        </div>
+
+        <div class="user-info-card">
+            <h2>User Information</h2>
+            <div class="user-info-item">
+                <span class="info-label">Email:</span>
+                <span class="info-value"><%= user.email %></span>
+            </div>
+            <div class="user-info-item">
+                <span class="info-label">User ID:</span>
+                <span class="info-value"><%= user.userId %></span>
+            </div>
+            <div class="user-info-item">
+                <span class="info-label">Role:</span>
+                <span class="info-value"><%= user.role %></span>
+            </div>
+            <div class="user-info-item">
+                <span class="info-label">Status:</span>
+                <span class="info-value">Active</span>
+            </div>
+            <div class="user-info-item">
+                <span class="info-label">Email Verified:</span>
+                <span class="info-value"><%= user.isEmailVerified ? "Yes" : "No" %></span>
+            </div>
+        </div>
+
+        <div class="action-links">
+            <a href="#" class="dashboard-action">Edit Profile</a>
+            <% if (user.role === 'admin') { %>
+                <a href="/users/admin" class="dashboard-action admin-link">Admin Dashboard</a>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- JavaScript for mobile menu toggle -->
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navbarLinks').classList.toggle('active');
+            document.getElementById('authButtons').classList.toggle('active');
+        });
+    </script>
 </body>
 </html>

@@ -1,18 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title><%= title %></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
-<h1>Edit User</h1>
-<form action="/users/edit/<%= user._id %>" method="POST">
-<label for="name">Name:</label><br>
+<body class="admin-edit-page">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+         <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+            </a>
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
 
-<input type="text" name="name" value="<%= user.name %>" required><br><br>
-<label for="email">Email:</label><br>
-<input type="email" name="email" value="<%= user.email %>"
-required><br><br>
-<button type="submit">Update</button>
-</form>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Edit User</h1>
+            <a href="/users/admin" class="back-link">← Back to Admin</a>
+        </div>
+        
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success">
+                <%= success %>
+            </div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger">
+                <%= error %>
+            </div>
+        <% } %>
+        
+        <div class="user-info-card">
+            <form action="/users/edit/<%= user.userId %>" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" name="firstName" value="<%= user.firstName %>" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" value="<%= user.lastName %>" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="<%= user.email %>" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <select id="role" name="role" required>
+                            <option value="customer" <%= user.role === 'customer' ? 'selected' : '' %>>Customer</option>
+                            <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="accountStatus">Account Status</label>
+                        <select id="accountStatus" name="accountStatus" required>
+                            <option value="active" <%= user.accountStatus === 'active' ? 'selected' : '' %>>Active</option>
+                            <option value="suspended" <%= user.accountStatus === 'suspended' ? 'selected' : '' %>>Suspended</option>
+                            <option value="deactivated" <%= user.accountStatus === 'deactivated' ? 'selected' : '' %>>Deactivated</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="primary-button">Update User</button>
+                    <a href="/users/admin" class="secondary-button">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript for mobile menu toggle -->
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navbarLinks').classList.toggle('active');
+            document.getElementById('authButtons').classList.toggle('active');
+        });
+    </script>
 </body>
 </html>
