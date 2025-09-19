@@ -83,7 +83,7 @@ router.post('/register', async (req, res) => {
         
         // 4. Create verification token
         const token = uuidv4();
-        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+        const baseUrl = process.env.BASE_URL || 'https://ws2-ecommerce-project-g11.onrender.com';
         const verificationUrl = `${baseUrl}/users/verify/${token}`;
         
         // 5. Build new user object
