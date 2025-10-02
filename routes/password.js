@@ -37,7 +37,7 @@ router.post('/forgot', async (req, res) => {
             );
 
             // Build reset URL
-            const baseUrl = process.env.BASE_URL || 'https://ws2-ecommerce-project-g11.onrender.com';
+            const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
             const resetUrl = `${baseUrl}/password/reset/${token}`;
 
             // Send email with Resend

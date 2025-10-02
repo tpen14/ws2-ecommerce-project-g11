@@ -4,14 +4,35 @@ const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const session = require('express-session'); // Added for user sessions
 require('dotenv').config();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+
+// near the top of server.js, after session middleware
+app.use((req, res, next) => {
+res.locals.user = req.session?.user || null
+next()
+})
+
+app.use((req, res, next) => {
+if (req.path.startsWith('/api/')) {
+return res.status(404).json({ error: 'Not Found', path: req.path })
+}
+res.set('Cache-Control', 'no-store')
+res.status(404).render('404', { title: 'Page Not Found' })
+})
+
+// Error handler (after the 404 is fine; Express will skip 404 for thrown errors)
+app.use((err, req, res, next) => {
+console.error(err)
+res.status(500).render('500', { title: 'Server Error' })
+})
 
 // Session setup
 app.use(session({
@@ -27,16 +48,25 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/health', (req, res) => res.type('text').send('ok'))
+
 // Routes
 const indexRoute = require('./routes/index');
 const usersRoute = require('./routes/users');
 const passwordRoute = require('./routes/password');
 const productsRoute = require('./routes/products');
 
+
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
 app.use('/products', productsRoute);
+// 404 handler (must be the last route)
+app.use((req, res, next) => {
+res.set('Cache-Control', 'no-store')
+res.status(404).render('404', { title: "Page Not Found" });
+});
+
 
 // MongoDB Setup
 const uri = process.env.MONGO_URI;
