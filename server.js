@@ -4,15 +4,9 @@ const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const session = require('express-session'); // Added for user sessions
 require('dotenv').config();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
-const helmet = require('helmet')
-const compression = require('compression')
-
-app.set('trust proxy', 1) // if behind Render proxy
-app.use(helmet()) // sensible security headers
-app.use(compression())
-
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -23,20 +17,6 @@ app.use(express.static('public'));
 app.use((req, res, next) => {
 res.locals.user = req.session?.user || null
 next()
-})
-
-app.use((req, res, next) => {
-if (req.path.startsWith('/api/')) {
-return res.status(404).json({ error: 'Not Found', path: req.path })
-}
-res.set('Cache-Control', 'no-store')
-res.status(404).render('404', { title: 'Page Not Found' })
-})
-
-// Error handler (after the 404 is fine; Express will skip 404 for thrown errors)
-app.use((err, req, res, next) => {
-console.error(err)
-res.status(500).render('500', { title: 'Server Error' })
 })
 
 // Session setup
@@ -53,7 +33,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/health', (req, res) => res.type('text').send('ok'))
 
 // Routes
 const indexRoute = require('./routes/index');
@@ -61,27 +40,21 @@ const usersRoute = require('./routes/users');
 const passwordRoute = require('./routes/password');
 const productsRoute = require('./routes/products');
 
-
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
 app.use('/products', productsRoute);
 
-// lightweight logger before the final 404 render
-app.use((req, res, next) => {
-  if (!res.headersSent) {
-    console.warn('404:', req.method, req.originalUrl, 'referrer:',
-    req.get('referer') || '-')
-  }
-  next()
-})
-
 // 404 handler (must be the last route)
 app.use((req, res, next) => {
-res.set('Cache-Control', 'no-store')
 res.status(404).render('404', { title: "Page Not Found" });
 });
 
+// Error handler (after the 404 is fine; Express will skip 404 forthrown errors)
+app.use((err, req, res, next) => {
+console.error(err)
+res.status(500).render('500', { title: 'Server Error' })
+})
 
 // MongoDB Setup
 const uri = process.env.MONGO_URI;
