@@ -6,7 +6,12 @@ const session = require('express-session'); // Added for user sessions
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
+const helmet = require('helmet')
+const compression = require('compression')
 
+app.set('trust proxy', 1) // if behind Render proxy
+app.use(helmet()) // sensible security headers
+app.use(compression())
 
 
 // Middleware
@@ -61,6 +66,16 @@ app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
 app.use('/products', productsRoute);
+
+// lightweight logger before the final 404 render
+app.use((req, res, next) => {
+  if (!res.headersSent) {
+    console.warn('404:', req.method, req.originalUrl, 'referrer:',
+    req.get('referer') || '-')
+  }
+  next()
+})
+
 // 404 handler (must be the last route)
 app.use((req, res, next) => {
 res.set('Cache-Control', 'no-store')
