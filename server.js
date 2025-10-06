@@ -4,9 +4,9 @@ const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const session = require('express-session'); // Added for user sessions
 require('dotenv').config();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -33,28 +33,45 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint - add before routes
+app.get('/health', (req, res) => res.type('text').send('ok'));
+
 
 // Routes
 const indexRoute = require('./routes/index');
 const usersRoute = require('./routes/users');
 const passwordRoute = require('./routes/password');
 const productsRoute = require('./routes/products');
-
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
 app.use('/products', productsRoute);
+app.get('/crash', () => {
+throw new Error('Test crash');
+});
+
+
+
+// lightweight logger before the final 404 render
+app.use((req, res, next) => {
+if (!res.headersSent) {
+console.warn('404:', req.method, req.originalUrl, 'referrer:',
+req.get('referer') || '-')
+}
+next()
+})
 
 // 404 handler (must be the last route)
 app.use((req, res, next) => {
 res.status(404).render('404', { title: "Page Not Found" });
 });
 
-// Error handler (after the 404 is fine; Express will skip 404 forthrown errors)
+// 500 handler (last)
 app.use((err, req, res, next) => {
-console.error(err)
-res.status(500).render('500', { title: 'Server Error' })
-})
+console.error(err.stack);
+if (res.headersSent) return next(err);
+res.status(500).render('500', { title: 'Server Error' });
+});
 
 // MongoDB Setup
 const uri = process.env.MONGO_URI;
