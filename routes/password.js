@@ -8,6 +8,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
 
+const verifyTurnstile = require('../utils/turnstileVerify'); // Add at top if not present
+
 // Show forgot password form
 router.get('/forgot', (req, res) => {
     res.render('forgot-password', { title: "Forgot Password" });
@@ -15,6 +17,17 @@ router.get('/forgot', (req, res) => {
 
 // Handle forgot password form submission
 router.post('/forgot', async (req, res) => {
+    // Turnstile verification
+    const token = req.body['cf-turnstile-response'];
+    const result = await verifyTurnstile(token, req.ip);
+    if (!result.success) {
+        return res.status(400).render('forgot-password', { 
+            title: "Forgot Password",
+            error: 'Verification failed. Please try again.',
+            email: req.body.email
+        });
+    }
+
     try {
         const db = req.app.locals.client.db(req.app.locals.dbName);
         const usersCollection = db.collection('users');

@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 12;
 const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
+const verifyTurnstile = require('../utils/turnstileVerify');
 
 // Home page route
 router.get('/', (req, res) => {
@@ -22,6 +23,19 @@ router.get('/register', (req, res) => {
 
 // Registration (POST)
 router.post('/register', async (req, res) => {
+    // Add Turnstile verification here
+    const token = req.body['cf-turnstile-response'];
+    const result = await verifyTurnstile(token, req.ip);
+    if (!result.success) {
+        return res.status(400).render('register', { 
+            title: "Register",
+            error: 'Verification failed. Please try again.',
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email
+        });
+    }
+
     try {
         const db = req.app.locals.client.db(req.app.locals.dbName);
         const usersCollection = db.collection('users');
@@ -205,6 +219,11 @@ router.get('/login', (req, res) => {
 
 // Handle login form submission
 router.post('/login', async (req, res) => {
+    const token = req.body['cf-turnstile-response'];
+    const result = await verifyTurnstile(token, req.ip);
+    if (!result.success) {
+        return res.status(400).render('login', { error: 'Verification failed. Please try again.' });
+    }
     try {
         const db = req.app.locals.client.db(req.app.locals.dbName);
         const usersCollection = db.collection('users');
