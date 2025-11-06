@@ -9,4 +9,12 @@ router.get('/', (req, res) => {
         user: req.session.user || null 
     });
 });
+
+router.get('/about', (req, res) => {
+    res.render('about', {
+        title: 'About Me',
+        name: 'Stephen Ezekiel C. Robles',
+        description: 'I am a web systems student building projects with Node.js, Express, and EJS.'
+    });
+});
 module.exports = router;

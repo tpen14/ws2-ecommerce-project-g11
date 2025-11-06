@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <meta name="description" content="Learn more about <%= name %> — web systems developer and student innovator.">
+    <meta name="keywords" content="about page, web systems, EJS, SEO, student project">
+    <meta name="author" content="<%= name %>">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="About <%= name %>">
+    <meta property="og:description" content="<%= description %>">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/public/images/profile.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <style>
+        body {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        color: #222;
+        background-color: #f9fafb;
+        }
+        header {
+        background-color: #1e293b;
+        color: white;
+        padding: 1.5rem 0;
+        text-align: center;
+        }
+        nav a {
+        color: #facc15;
+        margin: 0 1rem;
+        text-decoration: none;
+        font-weight: 500;
+        }
+        nav a:hover {
+        text-decoration: underline;
+        }
+        main {
+
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+        color: #1e293b;
+        }
+        footer {
+        text-align: center;
+        padding: 1rem 0;
+        background-color: #1e293b;
+        color: white;
+        margin-top: 3rem;
+        }
+    </style>
+
+</head>
+    <body>
+        <header>
+        <h1>About <%= name %></h1>
+            <nav aria-label="Main Navigation">
+            <a href="/" title="Go to homepage">Home</a>
+            <a href="/about" aria-current="page">About</a>
+            <a href="/contact" title="Go to contact page">Contact</a>
+            </nav>
+        </header>
+   <main role="main">
+        <section aria-labelledby="about-title">
+        <h2 id="about-title">Who I Am</h2>
+        <p><%= description %></p>
+        </section>
+    </main>
+        <footer>
+            <p>© <span id="year"><%= new Date().getFullYear() %></span> <%= name %>. All
+            rights reserved.</p>
+        </footer>
+    </body>
+</html>

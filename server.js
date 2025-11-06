@@ -14,13 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
-// near the top of server.js, after session middleware
-app.use((req, res, next) => {
-res.locals.user = req.session?.user || null
-next()
-})
-
-// Session setup
+// Session setup - MUST COME BEFORE accessing req.session
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret', // keep secret in .env
   resave: false,
@@ -28,15 +22,14 @@ app.use(session({
   cookie: { secure: false } // set true in production with HTTPS
 }));
 
-// Make user session data available to all views
+// Make user session data available to all views - AFTER session middleware
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
+  res.locals.user = req.session?.user || null;
   next();
 });
 
 // Health check endpoint - add before routes
 app.get('/health', (req, res) => res.type('text').send('ok'));
-
 
 // Routes
 const indexRoute = require('./routes/index');
@@ -48,30 +41,28 @@ app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
 app.use('/products', productsRoute);
 app.get('/crash', () => {
-throw new Error('Test crash');
+  throw new Error('Test crash');
 });
-
-
 
 // lightweight logger before the final 404 render
 app.use((req, res, next) => {
-if (!res.headersSent) {
-console.warn('404:', req.method, req.originalUrl, 'referrer:',
-req.get('referer') || '-')
-}
-next()
-})
+  if (!res.headersSent) {
+    console.warn('404:', req.method, req.originalUrl, 'referrer:',
+    req.get('referer') || '-');
+  }
+  next();
+});
 
 // 404 handler (must be the last route)
 app.use((req, res, next) => {
-res.status(404).render('404', { title: "Page Not Found" });
+  res.status(404).render('404', { title: "Page Not Found" });
 });
 
 // 500 handler (last)
 app.use((err, req, res, next) => {
-console.error(err.stack);
-if (res.headersSent) return next(err);
-res.status(500).render('500', { title: 'Server Error' });
+  console.error(err.stack);
+  if (res.headersSent) return next(err);
+  res.status(500).render('500', { title: 'Server Error' });
 });
 
 // MongoDB Setup

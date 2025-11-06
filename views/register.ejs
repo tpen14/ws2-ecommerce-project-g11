@@ -80,11 +80,11 @@
                     <button type="button" class="toggle-password" data-target="confirmPassword">Show</button>
                 </div>
                 <div class="password-match-message" id="passwordMatch"></div>
-            </div>
-             <!-- Turnstile widget -->
-             <div class="cf-turnstile" data-sitekey="<%= process.env.TURNSTILE_SITEKEY %>"></div>
-             <!-- Turnstile script -->
-             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+            </div> 
+            <!-- Turnstile widget -->
+            <div class="cf-turnstile" data-sitekey="<%= process.env.TURNSTILE_SITEKEY %>"></div>
+            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+           
             <div class="form-actions">
                 <button type="submit" id="submitBtn" class="primary-button">Register</button>
             </div>
