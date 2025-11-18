@@ -159,6 +159,160 @@ router.post('/add-product', upload.single('productImage'), async (req, res) => {
     }
 });
 
+// Delete product (admin) — improved debug logging and safer error response
+router.post('/:id/delete', async (req, res) => {
+  try {
+    if (!req.session || !req.session.user || req.session.user.role !== 'admin') {
+      console.warn('Unauthorized delete attempt', { ip: req.ip, params: req.params });
+      return res.status(403).send('Unauthorized');
+    }
+
+    console.log('Delete route hit', { params: req.params, body: req.body, user: req.session.user?.email });
+
+    const productId = Number(req.params.id);
+    if (!Number.isInteger(productId)) {
+      console.warn('Invalid product id for delete', req.params);
+      return res.redirect('/products?error=Invalid+product+ID');
+    }
+
+    const db = req.app.locals.client && req.app.locals.client.db && req.app.locals.client.db(req.app.locals.dbName);
+    if (!db) {
+      console.error('Database client not available on app.locals');
+      return res.status(500).send('Database not initialized');
+    }
+
+    const product = await db.collection('products').findOne({ productId });
+    if (!product) {
+      console.warn('Product not found for delete', { productId });
+      return res.redirect('/products?error=Product+not+found');
+    }
+
+    if (product.image && String(product.image).startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, '..', 'public', product.image.replace(/^\//, ''));
+      try {
+        fs.unlinkSync(filePath);
+        console.log('Deleted image file', filePath);
+      } catch (fsErr) {
+        if (fsErr.code !== 'ENOENT') console.warn('Failed to delete product image:', fsErr);
+      }
+    }
+
+    const result = await db.collection('products').deleteOne({ productId });
+    console.log('Product delete result:', result);
+
+    return res.redirect('/products?success=Product+deleted+successfully');
+  } catch (err) {
+    console.error('Error deleting product:', err);
+    // temporary: send error stack to browser to aid debugging
+    return res.status(500).send('Server error during delete:\n' + (err.stack || err.message));
+  }
+});
+
+// Show edit form (admin only)
+router.get('/edit/:id', async (req, res) => {
+  try {
+    if (!req.session || !req.session.user || req.session.user.role !== 'admin') {
+      return res.redirect('/users/login');
+    }
+
+    const productId = parseInt(req.params.id, 10);
+    if (isNaN(productId)) return res.redirect('/products?error=Invalid+ID');
+
+    const db = req.app.locals.client && req.app.locals.client.db && req.app.locals.client.db(req.app.locals.dbName);
+    if (!db) {
+      console.error('Database client not available on app.locals');
+      return res.redirect('/products?error=Database+not+initialized');
+    }
+
+    const product = await db.collection('products').findOne({ productId });
+    if (!product) return res.redirect('/products?error=Product+not+found');
+
+    res.render('edit-product', {
+      title: `Edit ${product.name}`,
+      product,
+      user: req.session.user,
+      error: null,
+      success: null
+    });
+  } catch (err) {
+    console.error('Error loading edit form:', err);
+    return res.status(500).render('edit-product', {
+      title: 'Edit Product',
+      error: 'Failed to load product: ' + (err.message || 'unknown error'),
+      product: null,
+      user: req.session?.user || null
+    });
+  }
+});
+
+// Handle edit submission (admin only) — improved error handling and user feedback
+router.post('/edit/:id', upload.single('productImage'), async (req, res) => {
+  try {
+    if (!req.session || !req.session.user || req.session.user.role !== 'admin') {
+      console.warn('Unauthorized edit attempt', { ip: req.ip, params: req.params });
+      return res.redirect('/users/login');
+    }
+
+    const productId = parseInt(req.params.id, 10);
+    if (isNaN(productId)) return res.redirect('/products?error=Invalid+ID');
+
+    const { productName, description, price } = req.body;
+    const priceValue = parseFloat(price);
+    if (!productName || !description || isNaN(priceValue) || priceValue <= 0) {
+      return res.redirect(`/products/edit/${productId}?error=Invalid+input`);
+    }
+
+    const db = req.app.locals.client && req.app.locals.client.db && req.app.locals.client.db(req.app.locals.dbName);
+    if (!db) {
+      console.error('Database client not available on app.locals');
+      return res.redirect(`/products/edit/${productId}?error=Database+not+initialized`);
+    }
+
+    const product = await db.collection('products').findOne({ productId });
+    if (!product) return res.redirect(`/products?error=Product+not+found`);
+
+    const update = {
+      name: productName,
+      description,
+      price: priceValue,
+      updatedAt: new Date()
+    };
+
+    if (req.file) {
+      // delete old uploaded file if applicable
+      if (product.image && String(product.image).startsWith('/uploads/')) {
+        const oldFile = path.join(__dirname, '..', 'public', product.image.replace(/^\//, ''));
+        try {
+          fs.unlinkSync(oldFile);
+        } catch (e) {
+          if (e.code !== 'ENOENT') console.warn('Failed to delete old image:', e);
+        }
+      }
+      update.image = '/uploads/' + req.file.filename;
+    }
+
+    const r = await db.collection('products').updateOne({ productId }, { $set: update });
+    console.log('Product update result:', r);
+
+    return res.redirect('/products?success=Product+updated+successfully');
+  } catch (err) {
+    console.error('Error updating product:', err);
+    // render edit page with error message so you can see validation/DB issues
+    const product = {
+      productId: req.params.id,
+      name: req.body?.productName || '',
+      description: req.body?.description || '',
+      price: req.body?.price || ''
+    };
+    return res.status(500).render('edit-product', {
+      title: 'Edit Product',
+      error: 'Failed to update product: ' + (err.message || 'unknown error'),
+      product,
+      user: req.session?.user || null
+    });
+  }
+});
+
 // Get a single product by ID
 router.get('/:id', async (req, res) => {
     try {

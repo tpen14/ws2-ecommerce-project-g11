@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit Product - <%= (product && product.name) || 'Edit Product' %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="add-product-page">
+   <!-- Navigation Bar -->
+    <nav class="navbar">
+         <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+        Chonccolate
+        </a>
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <% if (locals.user && locals.user.role === 'admin') { %>
+                <li><a href="/products/add-product">Add Product</a></li>
+            <% } %>
+            <li><a href="/">About</a></li>
+            <li><a href="/">Contact</a></li>
+        </ul>
+        
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+  <div class="add-product-container">
+    <div class="dashboard-header">
+      <h1>Edit Product</h1>
+      <a href="/products" class="back-link">← Back to Products</a>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <% if (!product) { %>
+      <div class="alert alert-danger">Product not found.</div>
+      <a href="/products" class="secondary-button">Back to products</a>
+    <% } else { %>
+      <form action="/products/edit/<%= encodeURIComponent(product.productId) %>" method="POST" class="add-product-form" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="productName">Product Name *</label>
+          <input type="text" id="productName" name="productName" value="<%= product.name || '' %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description *</label>
+          <textarea id="description" name="description" rows="4" required><%= product.description || '' %></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="price">Price (in PHP) *</label>
+          <div class="price-input" style="position:relative; display:inline-block; width:100%; max-width:240px;">
+            <span style="position:absolute; left:10px; top:32%; transform:translateY(-50%); font-weight:600; color:var(--dark-brown);">₱</span>
+            <input type="number" id="price" name="price" min="0.01" step="0.01" value="<%= (product.price != null) ? product.price : '' %>" required
+                   style="padding-left:1.9rem; width:100%; box-sizing:border-box;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="productImage">Product Image (leave empty to keep current)</label>
+          <input type="file" id="productImage" name="productImage" accept="image/*">
+          <p class="form-help-text">Current image:</p>
+          <img src="<%= product.image || '/images/default-product.jpg' %>" alt="current" style="max-width:150px;border-radius:6px;margin-top:8px;">
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-button">Save Changes</button>
+          <a href="/products" class="secondary-button">Cancel</a>
+        </div>
+      </form>
+    <% } %>
+  </div>
+
+  <footer class="footer">...</footer>
+</body>
+</html>
