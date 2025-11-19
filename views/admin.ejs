@@ -8,26 +8,37 @@
     </head>
     <body class="admin-page">
         <!-- Navigation Bar -->
-        <nav class="navbar">
-            <a href="/" class="navbar-brand">
+       <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
             <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
             Chonccolate
-            </a>
-            
-            <button class="menu-toggle" id="menuToggle">☰</button>
-            
-            <ul class="navbar-links" id="navbarLinks">
-                <li><a href="/">Home</a></li>
-                <li><a href="/products">Products</a></li>
-                <li><a href="/">About</a></li>
-                <li><a href="/">Contact</a></li>
-            </ul>
-            
-            <div class="auth-buttons" id="authButtons"> 
+        </a>
+        
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
                 <a href="/users/dashboard" class="auth-button login">Dashboard</a>
                 <a href="/users/logout" class="auth-button register">Logout</a>
-            </div>
-        </nav>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
 
         <div class="admin-container">
             <div class="admin-header">

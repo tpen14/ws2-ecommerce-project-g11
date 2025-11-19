@@ -7,19 +7,26 @@
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
+   <!-- Navigation Bar -->
     <nav class="navbar">
         <a href="/" class="navbar-brand">
             <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
             Chonccolate
-            </a>
-        <button class="menu-toggle" id="menuToggle">☰</button>
+        </a>
         
         <ul class="navbar-links" id="navbarLinks">
-            <li><a href="/">Home</a></li>
-            <li><a href="/products" class="active">Products</a></li>
-            <li><a href="/">About</a></li>
-            <li><a href="/">Contact</a></li>
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
         </ul>
         <div class="auth-buttons" id="authButtons">
             <% if (locals.user) { %>
@@ -58,9 +65,11 @@
 
                             <% /* show Add to Cart only for users with role 'customer' */ %>
                             <% if (locals.user && locals.user.role === 'customer') { %>
-                                <button class="add-to-cart-button" data-product-id="<%= product.productId %>">
-                                    Add to Cart
-                                </button>
+                                <form action="/cart/add" method="POST" class="add-to-cart-form" style="margin-top:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+                                    <input type="hidden" name="productId" value="<%= product.productId %>">
+                                    <input type="number" name="quantity" value="1" min="1" class="quantity-input" style="width:64px; padding:0.25rem;">
+                                    <button type="submit" class="primary-button">Add to Cart</button>
+                                </form>
                             <% } %>
 
                             <% if (locals.user && locals.user.role === 'admin') { %>

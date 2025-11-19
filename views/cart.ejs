@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="main-content">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+        </a>
+        
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+  <div class="products-container">
+    <h2>Your Cart</h2>
+
+    <% if (cart.items && cart.items.length > 0) { %>
+      <table class="cart-table">
+        <thead>
+          <tr><th>Item</th><th>Price</th><th>Qty</th><th>Subtotal</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% cart.items.forEach(item => { %>
+            <tr>
+              <td style="display:flex;align-items:center;gap:12px;">
+                <img src="<%= item.image %>" alt="" style="width:60px;height:60px;object-fit:cover;border-radius:6px;">
+                <div>
+                  <strong><%= item.name %></strong>
+                  <div style="color:#666;font-size:0.95rem;"><%= item.description ? item.description.substring(0,80) : '' %></div>
+                </div>
+              </td>
+              <td>₱<%= item.price.toFixed(2) %></td>
+              <td>
+                <form action="/cart/update" method="POST" style="display:flex;align-items:center;gap:8px;">
+                  <input type="hidden" name="productId" value="<%= item.productId %>">
+                  <input type="number" name="quantity" value="<%= item.quantity %>" min="0" style="width:60px;padding:6px;border:1px solid var(--light-brown);border-radius:4px;box-sizing:border-box;vertical-align:middle;">
+                  <button type="submit" class="secondary-button" style="padding:6px 10px;height:36px;display:inline-flex;align-items:center;">Update</button>
+                </form>
+              </td>
+              <td>₱<%= item.subtotal.toFixed(2) %></td>
+              <td>
+                <form action="/cart/remove" method="POST" style="display:inline;">
+                  <input type="hidden" name="productId" value="<%= item.productId %>">
+                  <button type="submit" class="secondary-button delete-button" style="padding:6px 10px;">Remove</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <div style="margin-top:1rem; display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+        <div><strong>Total: ₱<%= (cart.totalAmount||0).toFixed(2) %></strong></div>
+        <div style="display:flex; gap:0.75rem; flex-direction:column; min-width:280px;">
+          <a href="/products" class="secondary-button" style="align-self:flex-end;padding:0.6rem 1rem;">Continue Shopping</a>
+
+          <!-- Checkout form: ask for Name, Email, Shipping Address -->
+          <form action="/cart/checkout" method="POST" style="margin:0;display:flex;flex-direction:column;gap:8px;">
+            <label style="font-weight:600;">Customer Name</label>
+            <input name="customerName" type="text" required placeholder="Full name" value="<%= (locals.user ? (locals.user.firstName + ' ' + locals.user.lastName) : '') %>" style="padding:8px;border:1px solid var(--light-brown);border-radius:6px;">
+
+            <label style="font-weight:600;">Email</label>
+            <input name="customerEmail" type="email" required placeholder="you@example.com" value="<%= (locals.user ? locals.user.email : '') %>" style="padding:8px;border:1px solid var(--light-brown);border-radius:6px;">
+
+            <label style="font-weight:600;">Shipping Address</label>
+            <textarea name="shippingAddress" required placeholder="Street, City, ZIP, Country" rows="3" style="padding:8px;border:1px solid var(--light-brown);border-radius:6px;"><%= '' %></textarea>
+
+            <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
+              <button type="submit" class="primary-button">Checkout</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    <% } else { %>
+      <p>Your cart is empty.</p>
+    <% } %>
+  </div>
+
+  <footer class="footer"></footer>
+</body>
+</html>

@@ -36,13 +36,16 @@ const indexRoute = require('./routes/index');
 const usersRoute = require('./routes/users');
 const passwordRoute = require('./routes/password');
 const productsRoute = require('./routes/products');
+const cartRoute = require('./routes/cart');
+const ordersRoute = require('./routes/orders');
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
 app.use('/products', productsRoute);
-app.get('/crash', () => {
-  throw new Error('Test crash');
-});
+app.use('/cart', cartRoute);
+app.use('/orders', ordersRoute);
+// Backwards-compatible admin URLs
+app.get('/admin', (req, res) => res.redirect('/users/admin'));
 
 // lightweight logger before the final 404 render
 app.use((req, res, next) => {

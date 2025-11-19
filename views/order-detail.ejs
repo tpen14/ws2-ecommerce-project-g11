@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="has-hero">
+  <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+        </a>
+
+        <button class="menu-toggle" id="menuToggle">☰</button>
+
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+  <main class="main-content">
+    <div class="products-container">
+      <div class="dashboard-header">
+        <h1>Order <%= order.orderId %></h1>
+        <a href="/orders" class="back-link">← Back to Orders</a>
+      </div>
+
+      <div class="user-info-card" style="display:flex;flex-direction:column;gap:1rem;">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+          <div>
+            <h3 style="margin:0 0 .25rem 0;">Order Info</h3>
+            <p style="margin:0;color:var(--medium-brown);">Order ID: <%= order.orderId %></p>
+            <p style="margin:0;color:var(--medium-brown);">Status: <strong><%= order.orderStatus %></strong></p>
+            <p style="margin:0;color:var(--medium-brown);">Created: <%= order.createdAt ? new Date(order.createdAt).toLocaleString() : '-' %></p>
+
+            <h4 style="margin:.75rem 0 .25rem 0;">Customer</h4>
+            <p style="margin:0;color:var(--medium-brown);">Name: <%= order.customerName || '' %></p>
+            <p style="margin:0;color:var(--medium-brown);">Email: <%= order.customerEmail || '' %></p>
+            <p style="margin:0;color:var(--medium-brown);">Shipping Address: <%= order.shippingAddress || '-' %></p>
+          </div>
+
+          <div style="text-align:right;">
+            <p style="margin:0;color:var(--medium-brown);">Order Total</p>
+            <p style="margin:0;font-weight:700;font-size:1.25rem;">₱<%= (order.totalAmount||0).toFixed(2) %></p>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="margin-top:0;">Items</h3>
+          <table class="user-table" style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:8px 12px;">Product</th>
+                <th style="padding:8px 12px;text-align:right;">Price</th>
+                <th style="padding:8px 12px;text-align:center;">Qty</th>
+                <th style="padding:8px 12px;text-align:right;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% (order.items || []).forEach(function(i){ %>
+                <tr>
+                  <td style="padding:10px 12px;"><%= i.name %></td>
+                  <td style="padding:10px 12px;text-align:right;">₱<%= (i.price||0).toFixed(2) %></td>
+                  <td style="padding:10px 12px;text-align:center;"><%= i.quantity %></td>
+                  <td style="padding:10px 12px;text-align:right;">₱<%= (i.subtotal||0).toFixed(2) %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <% if (locals.user && locals.user.role === 'admin') { %>
+          <form action="/orders/<%= order.orderId %>/status" method="POST" class="form-card" style="max-width:420px;">
+            <label for="status">Change status</label>
+            <select name="status" id="status" style="width:100%;padding:0.6rem;border:1px solid var(--light-brown);border-radius:6px;margin-bottom:1rem;">
+              <% statuses.forEach(function(s){ %>
+                <option value="<%= s %>" <%= s === order.orderStatus ? 'selected' : '' %>><%= s %></option>
+              <% }) %>
+            </select>
+            <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+              <button type="submit" class="primary-button">Update</button>
+            </div>
+          </form>
+        <% } %>
+
+        <% if (locals.user && locals.user.role !== 'admin') { %>
+          <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+            <% if (order.orderStatus === 'to_pay') { %>
+              <a href="/checkout/pay/<%= order.orderId %>" class="primary-button">Pay Now</a>
+            <% } %>
+            <a href="/orders" class="secondary-button">Back</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script>
+    document.getElementById('menuToggle')?.addEventListener('click', function() {
+      document.getElementById('navbarLinks')?.classList.toggle('active');
+      document.getElementById('authButtons')?.classList.toggle('active');
+    });
+  </script>
+</body>
+</html>

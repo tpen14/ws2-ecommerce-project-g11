@@ -5,79 +5,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
-    <meta name="description" content="Learn more about <%= name %> — web systems developer and student innovator.">
-    <meta name="keywords" content="about page, web systems, EJS, SEO, student project">
-    <meta name="author" content="<%= name %>">
+    <meta name="description" content="Handcrafted Happiness — One Chocolate at a Time. Our chocolates are made locally with passion and purpose, bringing you comfort and joy in every bite.">
+    <meta name="keywords" content="chocolate, artisanal, local cacao, Filipino cacao, gift sets, handcrafted chocolate">
+    <meta name="author" content="Chonccolate">
     <meta name="robots" content="index, follow">
-    <meta property="og:title" content="About <%= name %>">
-    <meta property="og:description" content="<%= description %>">
+    <meta property="og:title" content="About Chonccolate">
+    <meta property="og:description" content="Handcrafted Happiness — One Chocolate at a Time. Our chocolates are made locally with passion and purpose.">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="/public/images/profile.png">
+    <meta property="og:image" content="/images/about-hero.jpg">
     <meta name="twitter:card" content="summary_large_image">
-    <style>
-        body {
-        font-family: "Segoe UI", system-ui, sans-serif;
-        margin: 0;
-        padding: 0;
-        line-height: 1.6;
-        color: #222;
-        background-color: #f9fafb;
-        }
-        header {
-        background-color: #1e293b;
-        color: white;
-        padding: 1.5rem 0;
-        text-align: center;
-        }
-        nav a {
-        color: #facc15;
-        margin: 0 1rem;
-        text-decoration: none;
-        font-weight: 500;
-        }
-        nav a:hover {
-        text-decoration: underline;
-        }
-        main {
-
-        max-width: 800px;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-        color: #1e293b;
-        }
-        footer {
-        text-align: center;
-        padding: 1rem 0;
-        background-color: #1e293b;
-        color: white;
-        margin-top: 3rem;
-        }
-    </style>
-
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
-    <body>
-        <header>
-        <h1>About <%= name %></h1>
-            <nav aria-label="Main Navigation">
-            <a href="/" title="Go to homepage">Home</a>
-            <a href="/about" aria-current="page">About</a>
-            <a href="/contact" title="Go to contact page">Contact</a>
-            </nav>
-        </header>
-   <main role="main">
-        <section aria-labelledby="about-title">
-        <h2 id="about-title">Who I Am</h2>
-        <p><%= description %></p>
-        </section>
+
+<body class="has-hero">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+        </a>
+        
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <section class="hero" aria-hidden="false" style="background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/images/about-hero.jpg');">
+        <div class="hero-content">
+            <h1>Handcrafted Happiness — One Chocolate at a Time.</h1>
+            <p class="hero-subtitle">Our chocolates are made locally with passion and purpose, bringing you comfort and joy in every bite.</p>
+        </div>
+    </section>
+
+    <main class="main-content" role="main">
+        <div class="products-container" style="max-width:1000px; margin: 1.5rem auto;">
+            <div class="dashboard-header" style="border-bottom:none; padding-bottom:0;">
+                <h2 id="about-title">Where Are Our Chocolates From?</h2>
+            </div>
+
+            <div class="user-info-card" style="background:var(--white); padding:1.5rem; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:1.25rem;">
+                <p>Our artisanal chocolates are crafted in the Philippines using the finest local cacao beans. We aim to support Filipino farmers and promote sustainable chocolate-making traditions.</p>
+            </div>
+
+            <div class="dashboard-header" style="margin-top:0; border-bottom:none;">
+                <h3>Are Chocolates Good for You?</h3>
+            </div>
+
+            <div style="background:var(--cream); padding:1.25rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.03); margin-bottom:1.25rem;">
+                <p>Yes! Our dark and milk chocolates are made with real cacao, less sugar, and natural ingredients — making them a sweet treat that’s both delicious and mindful.</p>
+              
+            </div>
+
+            <div class="dashboard-header" style="margin-top:0; border-bottom:none;">
+                <h3>Meet the Chocolate Makers</h3>
+            </div>
+
+            <div style="background:var(--white); padding:1.25rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.03); margin-bottom:1.25rem;">
+                <p>We’re a small team of chocolatiers passionate about crafting unique flavors and textures. Each piece is hand-tempered, molded, and wrapped with care.</p>
+            </div>
+
+            <div class="dashboard-header" style="margin-top:0; border-bottom:none;">
+                <h3>Top Chocolate Gift Sets for Delivery</h3>
+            </div>
+
+            <div style="background:var(--cream); padding:1.25rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.03); margin-bottom:1.25rem;">
+                <p>Featured in local food blogs and chosen as one of the top chocolate gift sets for delivery in the Philippines. Thousands of happy customers trust our creations for birthdays, weddings, and holidays.</p>
+            </div>
+
+            <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-start; margin-top:0.5rem;">
+                <p>Visit our shop in Baguio City or check our online store for limited-edition seasonal chocolates — perfect for holidays and special occasions.</p>
+                <a href="/products" class="secondary-button" style="text-decoration:none;">Order now</a>
+            </div>
+        </div>
     </main>
-        <footer>
-            <p>© <span id="year"><%= new Date().getFullYear() %></span> <%= name %>. All
-            rights reserved.</p>
-        </footer>
-    </body>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/products">Products</a></li>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="/terms">Terms of Service</a></li>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; <%= new Date().getFullYear() %> Chonccolate. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+      document.getElementById('menuToggle')?.addEventListener('click', function() {
+        document.getElementById('navbarLinks')?.classList.toggle('active');
+        document.getElementById('authButtons')?.classList.toggle('active');
+      });
+    </script>
+</body>
+
 </html>

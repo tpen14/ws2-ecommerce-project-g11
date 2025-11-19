@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title><%= title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+        </a>
+        
+        <button class="menu-toggle" id="menuToggle">☰</button>
+
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
+        </ul>
+
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+  <main class="main-content">
+    <div class="products-container">
+      <div class="dashboard-header">
+        <h1>Orders</h1>
+      </div>
+
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert success-alert" id="orderAlert" role="status" style="margin:12px 0;padding:10px;border-radius:6px;background:#e6ffed;border:1px solid #b7f0c9;color:#064a2a;display:flex;justify-content:space-between;align-items:center;">
+          <div><strong>Success:</strong> <%= success %></div>
+          <button aria-label="Dismiss" onclick="document.getElementById('orderAlert').style.display='none'" style="background:transparent;border:none;cursor:pointer;font-size:1.1rem;">✕</button>
+        </div>
+        <script>setTimeout(()=>{document.getElementById('orderAlert')?.style.display='none'},5000)</script>
+      <% } %>
+
+      <% if (!locals.user) { %>
+        <div class="user-info-card">
+          <p>Please <a href="/users/login">log in</a> to view your orders.</p>
+        </div>
+      <% } else { %>
+        <% 
+          const userId = locals.user.userId;
+          const userOrders = (locals.user.role === 'admin' || !orders) ? (orders || []) : (orders || []).filter(o => String(o.userId) === String(userId));
+        %>
+
+        <% if (!userOrders || userOrders.length === 0) { %>
+          <div class="user-info-card">
+            <p>No orders found.</p>
+          </div>
+        <% } else { %>
+          <div class="user-info-card">
+            <% if (locals.user && locals.user.role === 'admin') { %>
+              <table class="user-table" role="table" aria-label="Orders">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer Email</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% userOrders.forEach(o => { %>
+                    <tr>
+                      <td><a href="/orders/<%= o.orderId %>"><%= o.orderId %></a></td>
+                      <td><%= o.customerEmail || '' %></td>
+                      <td>₱<%= ((o.totalAmount || 0)).toFixed(2) %></td>
+                      <td><%= o.orderStatus || 'Unknown' %></td>
+                      <td><%= o.createdAt ? new Date(o.createdAt).toLocaleString() : '-' %></td>
+                      <td><a class="secondary-button" href="/orders/<%= o.orderId %>">View</a></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } else { %>
+              <table class="user-table" role="table" aria-label="Orders">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% userOrders.forEach(o => { %>
+                    <tr>
+                      <td><a href="/orders/<%= o.orderId %>"><%= o.orderId %></a></td>
+                      <td>
+                        <% if (o.createdAt) { %>
+                          <%= new Date(o.createdAt).toLocaleString() %>
+                        <% } else { %>
+                          -
+                        <% } %>
+                      </td>
+                      <td><%= Array.isArray(o.items) ? o.items.length : (o.items ? o.items.length : 0) %></td>
+                      <td>₱<%= (o.totalAmount || 0).toFixed(2) %></td>
+                      <td><%= o.orderStatus || 'Unknown' %></td>
+                      <td>
+                        <a class="secondary-button" href="/orders/<%= o.orderId %>">View</a>
+                        <% if (locals.user.role !== 'admin' && (o.orderStatus === 'pending' || o.orderStatus === 'processing')) { %>
+                          <form action="/orders/<%= o.orderId %>/cancel" method="POST" style="display:inline">
+                            <button type="submit" class="secondary-button" onclick="return confirm('Cancel this order?')">Cancel</button>
+                          </form>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/products">Products</a></li>
+          <li><a href="/about">About Us</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Legal</h3>
+        <ul>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <%= new Date().getFullYear() %> Chonccolate. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('menuToggle')?.addEventListener('click', function() {
+      document.getElementById('navbarLinks')?.classList.toggle('active');
+      document.getElementById('authButtons')?.classList.toggle('active');
+    });
+  </script>
+</body>
+</html>

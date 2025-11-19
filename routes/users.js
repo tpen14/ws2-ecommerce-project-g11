@@ -271,20 +271,32 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Admin view
+// Admin page (users list)
 router.get('/admin', async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') {
         return res.redirect('/users/login');
     }
-    const db = req.app.locals.client.db(req.app.locals.dbName);
-    const users = await db.collection('users').find().toArray();
-    res.render('admin', {
-        title: "Admin Dashboard",
-        users,
-        currentUser: req.session.user,
-        success: req.query.success,
-        error: req.query.error
-    });
+    try {
+        const db = req.app.locals.client.db(req.app.locals.dbName);
+        const usersCollection = db.collection('users');
+        const users = await usersCollection.find().toArray();
+
+        res.render('admin', {
+            title: 'Admin Dashboard',
+            users: users,
+            currentUser: req.session.user,
+            success: req.query.success,
+            error: req.query.error
+        });
+    } catch (err) {
+        console.error('Error loading admin page:', err);
+        res.render('admin', {
+            title: 'Admin Dashboard',
+            users: [],
+            currentUser: req.session.user,
+            error: 'Error loading admin data. Please try again.'
+        });
+    }
 });
 
 // Dashboard route
@@ -396,34 +408,6 @@ router.post('/delete/:id', async (req, res) => {
     }
 });
 
-// Make sure your admin route also passes success/error messages
-router.get('/admin', async (req, res) => {
-    // Check if user is logged in and is an admin
-    if (!req.session.user || req.session.user.role !== 'admin') {
-        return res.redirect('/users/login');
-    }
-    
-    try {
-        const db = req.app.locals.client.db(req.app.locals.dbName);
-        const usersCollection = db.collection('users');
-        const users = await usersCollection.find().toArray();
-        
-        res.render('admin', { 
-            title: "Admin Dashboard", 
-            users: users, 
-            currentUser: req.session.user,
-            success: req.query.success,
-            error: req.query.error
-        });
-    } catch (err) {
-        console.error("Error fetching users:", err);
-        res.render('admin', { 
-            title: "Admin Dashboard", 
-            users: [],
-            currentUser: req.session.user,
-            error: "Error fetching users. Please try again."
-        });
-    }
-});
+// (Admin route consolidated above)
 
 module.exports = router;
