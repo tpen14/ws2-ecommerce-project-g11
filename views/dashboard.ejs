@@ -51,6 +51,14 @@
                 <span class="info-value"><%= user.email %></span>
             </div>
             <div class="user-info-item">
+                <span class="info-label">Contact:</span>
+                <span class="info-value"><%= user.contactNumber && user.contactNumber.trim() ? user.contactNumber : 'N/A' %></span>
+            </div>
+            <div class="user-info-item">
+                <span class="info-label">Incomplete Orders:</span>
+                <span class="info-value"><%= typeof incompleteOrdersCount !== 'undefined' ? incompleteOrdersCount : '0' %></span>
+            </div>
+            <div class="user-info-item">
                 <span class="info-label">User ID:</span>
                 <span class="info-value"><%= user.userId %></span>
             </div>
@@ -66,10 +74,14 @@
                 <span class="info-label">Email Verified:</span>
                 <span class="info-value"><%= user.isEmailVerified ? "Yes" : "No" %></span>
             </div>
+            <div class="user-info-item">
+                <span class="info-label">Address:</span>
+                <span class="info-value"><%= user.address && user.address.trim() ? user.address : 'N/A' %></span>
+            </div>
         </div>
 
         <div class="action-links">
-            <a href="#" class="dashboard-action">Edit Profile</a>
+            <a href="/users/profile" class="dashboard-action">Edit Profile</a>
             <% if (user.role === 'admin') { %>
                 <a href="/users/admin" class="dashboard-action admin-link">Admin Dashboard</a>
             <% } %>

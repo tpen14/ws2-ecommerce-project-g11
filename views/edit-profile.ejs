@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title><%= title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">
+      <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+      Chonccolate
+    </a>
+    <ul class="navbar-links" id="navbarLinks">
+      <li><a href="/">Home</a></li>
+      <li><a href="/products">Products</a></li>
+    </ul>
+    <div class="auth-buttons" id="authButtons">
+      <% if (locals.user) { %>
+        <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+        <a href="/users/logout" class="auth-button register">Logout</a>
+      <% } else { %>
+        <a href="/users/login" class="auth-button login">Login</a>
+        <a href="/users/register" class="auth-button register">Register</a>
+      <% } %>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="products-container">
+      <div class="dashboard-header">
+        <h1>Edit Profile</h1>
+        <a href="/users/dashboard" class="back-link">← Back to Dashboard</a>
+      </div>
+
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div id="profileSuccess" class="alert alert-success"><%= success %></div>
+      <% } %>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div id="profileError" class="alert alert-danger"><%= error %></div>
+      <% } %>
+
+      <div class="user-info-card">
+        <form action="/users/profile" method="POST">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" value="<%= user.firstName %>" required>
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" value="<%= user.lastName %>" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="<%= user.email %>" required>
+          </div>
+
+          <div class="form-group">
+            <label for="contactNumber">Contact Number</label>
+            <input type="tel" id="contactNumber" name="contactNumber" pattern="^(\+63|0)9[0-9]{9}$" placeholder="e.g. 09171234567 or +639171234567" value="<%= user.contactNumber || '' %>">
+            <div class="help-text">Format: 09XXXXXXXXX or +639XXXXXXXXX</div>
+          </div>
+
+          <div class="form-group">
+            <label for="address">Address</label>
+            <textarea id="address" name="address" rows="3" placeholder="Street, Barangay, City, Province" style="width:100%;padding:0.8rem;border:1px solid var(--light-brown);border-radius:4px;"><%= user.address || '' %></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="password">New Password (optional)</label>
+              <input type="password" id="password" name="password" placeholder="Leave blank to keep current password" aria-describedby="passwordHelp">
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat new password">
+            </div>
+          </div>
+
+          <div class="password-criteria" id="passwordCriteria">
+            <div class="form-subtitle">Password must contain:</div>
+            <ul class="criteria-list">
+              <li id="crit-length" class="criteria-item">At least 8 characters</li>
+              <li id="crit-upper" class="criteria-item">An uppercase letter</li>
+              <li id="crit-lower" class="criteria-item">A lowercase letter</li>
+              <li id="crit-number" class="criteria-item">A number</li>
+              <li id="crit-special" class="criteria-item">A special character (e.g. !@#$%)</li>
+            </ul>
+            <div id="passwordMatch" class="password-match-message"></div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="saveBtn" class="primary-button">Save Changes</button>
+            <a href="/users/dashboard" class="secondary-button">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script>
+    document.getElementById('menuToggle')?.addEventListener('click', function() {
+      document.getElementById('navbarLinks')?.classList.toggle('active');
+      document.getElementById('authButtons')?.classList.toggle('active');
+    });
+
+    // Password strength and match checking
+    (function(){
+      const password = document.getElementById('password');
+      const confirmPassword = document.getElementById('confirmPassword');
+      const saveBtn = document.getElementById('saveBtn');
+
+      const critLength = document.getElementById('crit-length');
+      const critUpper = document.getElementById('crit-upper');
+      const critLower = document.getElementById('crit-lower');
+      const critNumber = document.getElementById('crit-number');
+      const critSpecial = document.getElementById('crit-special');
+      const passwordMatch = document.getElementById('passwordMatch');
+
+      function testPassword(pw){
+        return {
+          length: /.{8,}/.test(pw),
+          upper: /[A-Z]/.test(pw),
+          lower: /[a-z]/.test(pw),
+          number: /[0-9]/.test(pw),
+          special: /[!@#$%^&*(),.?":{}|<>]/.test(pw)
+        };
+      }
+
+      function updateCriteria(){
+        const val = password.value || '';
+        const r = testPassword(val);
+        critLength.classList.toggle('valid', r.length);
+        critUpper.classList.toggle('valid', r.upper);
+        critLower.classList.toggle('valid', r.lower);
+        critNumber.classList.toggle('valid', r.number);
+        critSpecial.classList.toggle('valid', r.special);
+
+        // match
+        if (!val && !confirmPassword.value) {
+          passwordMatch.textContent = '';
+        } else if (val === confirmPassword.value) {
+          passwordMatch.textContent = 'Passwords match.';
+          passwordMatch.style.color = '#155724';
+        } else {
+          passwordMatch.textContent = 'Passwords do not match.';
+          passwordMatch.style.color = '#721c24';
+        }
+
+        // disable save if password provided but criteria not met or mismatch
+        const allValid = r.length && r.upper && r.lower && r.number && r.special;
+        if (val) {
+          saveBtn.disabled = !(allValid && val === confirmPassword.value);
+        } else {
+          saveBtn.disabled = false;
+        }
+      }
+
+      password?.addEventListener('input', updateCriteria);
+      confirmPassword?.addEventListener('input', updateCriteria);
+      // initialize state
+      updateCriteria();
+
+      // Auto-hide success message after 4s
+      const successEl = document.getElementById('profileSuccess');
+      if (successEl) setTimeout(()=>{ successEl.style.display='none'; }, 4000);
+      // Client-side contact number validation on submit
+      const form = document.querySelector('form[action="/users/profile"]');
+      const contactInput = document.getElementById('contactNumber');
+      const profileError = document.getElementById('profileError');
+      const phRegex = /^(?:\+63|0)9\d{9}$/;
+
+      if (form && contactInput) {
+        form.addEventListener('submit', function(e){
+          const val = (contactInput.value || '').trim();
+          if (val && !phRegex.test(val)) {
+            e.preventDefault();
+            if (profileError) {
+              profileError.textContent = 'Contact number format is invalid. Use 09XXXXXXXXX or +639XXXXXXXXX.';
+              profileError.style.display = 'block';
+            } else {
+              alert('Contact number format is invalid. Use 09XXXXXXXXX or +639XXXXXXXXX.');
+            }
+            contactInput.focus();
+            return false;
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

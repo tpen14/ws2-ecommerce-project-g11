@@ -48,6 +48,25 @@
         <h1>Orders</h1>
       </div>
 
+      <div class="orders-controls" style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <form method="GET" action="/orders" style="display:flex;gap:8px;align-items:center;" id="ordersFilterForm" data-total-pages="<%= typeof totalPages !== 'undefined' ? totalPages : 1 %>">
+          <label for="statusFilter">Status:</label>
+          <select id="statusFilter" name="status">
+            <option value="all" <%= (typeof currentStatus === 'undefined' || currentStatus === 'all') ? 'selected' : '' %>>All</option>
+            <% if (Array.isArray(statuses)) { statuses.forEach(s => { %>
+              <option value="<%= s %>" <%= (typeof currentStatus !== 'undefined' && currentStatus === s) ? 'selected' : '' %>><%= s %></option>
+            <% }) } %>
+          </select>
+          <button type="submit" class="secondary-button">Filter</button>
+          <label for="pageInput" style="margin-left:8px;">Page</label>
+          <input type="number" id="pageInput" name="page" min="1" max="<%= typeof totalPages !== 'undefined' ? totalPages : 1 %>" value="<%= page || 1 %>" style="width:70px;padding:6px;border-radius:4px;border:1px solid #ccc;">
+          <button type="button" id="pageGoBtn" class="secondary-button">Go</button>
+        </form>
+        <% if (typeof totalCount !== 'undefined') { %>
+          <div style="margin-left:auto;color:#555;">Showing page <%= page %> of <%= totalPages %> — <%= totalCount %> orders</div>
+        <% } %>
+      </div>
+
       <% if (typeof success !== 'undefined' && success) { %>
         <div class="alert success-alert" id="orderAlert" role="status" style="margin:12px 0;padding:10px;border-radius:6px;background:#e6ffed;border:1px solid #b7f0c9;color:#064a2a;display:flex;justify-content:space-between;align-items:center;">
           <div><strong>Success:</strong> <%= success %></div>
@@ -70,6 +89,25 @@
           <div class="user-info-card">
             <p>No orders found.</p>
           </div>
+
+          <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+            <nav class="pagination" aria-label="Orders pagination" style="margin-top:12px;display:flex;justify-content:center;">
+              <ul class="pagination-list" style="list-style:none;display:flex;gap:6px;padding:0;margin:0;align-items:center;">
+                <% const qsStatus = (typeof currentStatus !== 'undefined' && currentStatus !== 'all') ? ('status=' + encodeURIComponent(currentStatus) + '&') : ''; %>
+                <% if (page > 1) { %>
+                  <li><a href="/orders?<%= qsStatus %>page=<%= page-1 %>" class="secondary-button">Previous</a></li>
+                <% } %>
+                <% for (let p = 1; p <= totalPages; p++) { %>
+                  <li>
+                    <a href="/orders?<%= qsStatus %>page=<%= p %>" class="<%= p === page ? 'primary-button' : 'secondary-button' %>"><%= p %></a>
+                  </li>
+                <% } %>
+                <% if (page < totalPages) { %>
+                  <li><a href="/orders?<%= qsStatus %>page=<%= page+1 %>" class="secondary-button">Next</a></li>
+                <% } %>
+              </ul>
+            </nav>
+          <% } %>
         <% } else { %>
           <div class="user-info-card">
             <% if (locals.user && locals.user.role === 'admin') { %>
@@ -125,8 +163,8 @@
                       <td><%= o.orderStatus || 'Unknown' %></td>
                       <td>
                         <a class="secondary-button" href="/orders/<%= o.orderId %>">View</a>
-                        <% if (locals.user.role !== 'admin' && (o.orderStatus === 'pending' || o.orderStatus === 'processing')) { %>
-                          <form action="/orders/<%= o.orderId %>/cancel" method="POST" style="display:inline">
+                        <% if (locals.user.role !== 'admin' && !['completed','refund','cancelled'].includes(o.orderStatus)) { %>
+                            <form action="/orders/<%= o.orderId %>/cancel" method="POST" class="inline-form" style="display:inline">
                             <button type="submit" class="secondary-button" onclick="return confirm('Cancel this order?')">Cancel</button>
                           </form>
                         <% } %>
@@ -171,6 +209,36 @@
       document.getElementById('navbarLinks')?.classList.toggle('active');
       document.getElementById('authButtons')?.classList.toggle('active');
     });
+    // Jump to page helper for orders (clamps to available pages)
+    (function(){
+      const goBtn = document.getElementById('pageGoBtn');
+      const pageInput = document.getElementById('pageInput');
+      const form = document.getElementById('ordersFilterForm');
+      // total pages from server (fallback to 1)
+      // read total pages from the form dataset (provided by server)
+      const TOTAL_PAGES = form ? parseInt(form.dataset.totalPages || '1', 10) : 1;
+      if (pageInput) {
+        pageInput.setAttribute('max', String(TOTAL_PAGES));
+      }
+      if (goBtn && pageInput && form) {
+        goBtn.addEventListener('click', function(){
+          // ensure a sensible value and clamp to [1, TOTAL_PAGES]
+          let v = parseInt(pageInput.value, 10) || 1;
+          if (v < 1) v = 1;
+          if (v > TOTAL_PAGES) v = TOTAL_PAGES;
+          pageInput.value = v;
+          form.submit();
+        });
+
+        // also clamp on manual input change
+        pageInput.addEventListener('change', function(){
+          let v = parseInt(pageInput.value, 10) || 1;
+          if (v < 1) v = 1;
+          if (v > TOTAL_PAGES) v = TOTAL_PAGES;
+          pageInput.value = v;
+        });
+      }
+    })();
   </script>
 </body>
 </html>

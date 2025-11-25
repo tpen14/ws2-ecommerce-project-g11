@@ -81,6 +81,16 @@
                 </div>
                 <div class="password-match-message" id="passwordMatch"></div>
             </div> 
+            <div class="form-group">
+                <label for="contactNumber">Contact Number (optional)</label>
+                <input type="tel" id="contactNumber" name="contactNumber" pattern="^(?:\+63|0)9[0-9]{9}$" placeholder="e.g. 09171234567 or +639171234567" value="<%= typeof contactNumber !== 'undefined' ? contactNumber : '' %>">
+                <div class="help-text">Format: 09XXXXXXXXX or +639XXXXXXXXX</div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address (optional)</label>
+                <textarea id="address" name="address" rows="3" placeholder="Street, Barangay, City, Province" style="width:100%;padding:0.8rem;border:1px solid var(--light-brown);border-radius:4px;"><%= typeof address !== 'undefined' ? address : '' %></textarea>
+            </div>
             <!-- Turnstile widget -->
             <div class="cf-turnstile" data-sitekey="<%= process.env.TURNSTILE_SITEKEY %>"></div>
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>

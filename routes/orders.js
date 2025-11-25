@@ -11,17 +11,51 @@ router.get('/', async (req, res) => {
   if (!user) return res.redirect('/users/login');
 
   const db = req.app.locals.client.db(req.app.locals.dbName);
-  let orders;
 
+  // Query params
+  const requestedStatus = req.query.status;
+  const page = Math.max(1, parseInt(req.query.page || '1'));
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  // Build base query depending on role
+  let baseQuery = {};
   if (user.role === 'admin') {
-    orders = await db.collection('orders').find().sort({ createdAt: -1 }).toArray();
+    baseQuery = {};
   } else {
     const uid = user.userId;
-    const query = { $or: [{ userId: uid }, { userId: String(uid) }] };
-    orders = await db.collection('orders').find(query).sort({ createdAt: -1 }).toArray();
+    baseQuery = { $or: [{ userId: uid }, { userId: String(uid) }] };
   }
 
-  res.render('orders', { title: 'Orders', orders, user: req.session.user || null, success: req.query.success || null });
+  // Apply status filter if valid
+  let statusFilter = null;
+  if (requestedStatus && STATUSES.includes(requestedStatus)) {
+    statusFilter = requestedStatus;
+    baseQuery = Object.assign({}, baseQuery, { orderStatus: statusFilter });
+  }
+
+  try {
+    const ordersCollection = db.collection('orders');
+    const totalCount = await ordersCollection.countDocuments(baseQuery);
+    const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+
+    const orders = await ordersCollection.find(baseQuery).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray();
+
+    res.render('orders', {
+      title: 'Orders',
+      orders,
+      user: req.session.user || null,
+      success: req.query.success || null,
+      statuses: STATUSES,
+      currentStatus: statusFilter || 'all',
+      page,
+      totalPages,
+      totalCount
+    });
+  } catch (err) {
+    console.error('Error fetching orders list:', err);
+    res.render('orders', { title: 'Orders', orders: [], user: req.session.user || null, success: req.query.success || null, statuses: STATUSES, currentStatus: 'all', page: 1, totalPages: 1, totalCount: 0 });
+  }
 });
 
 // single order detail (admin + owner)

@@ -67,13 +67,27 @@ body.verification-page {
 }
 
 /* ======= FORM STYLES ======= */
-form {
+/* Styling for standalone form cards (keep large padding/box-shadow only for card-style forms) */
+.form-card,
+.add-product-form,
+.edit-product-form {
   background-color: var(--white);
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+}
+
+/* Inline forms (small actions inside tables) should not receive card styling */
+form.inline-form,
+form.inline,
+form[role="search"] {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  border: none;
+  box-shadow: none;
 }
 
 label {
@@ -107,7 +121,6 @@ button {
   font-size: 1rem;
   border-radius: 4px;
   cursor: pointer;
-  width: 100%;
   transition: background-color 0.2s ease;
 }
 
@@ -300,6 +313,40 @@ a:hover {
   margin-top: -10px;
   margin-bottom: 10px;
 }
+
+/* Edit profile specific tweaks */
+.user-info-card form {
+  max-width: 680px;
+  padding: 1.5rem;
+}
+
+.success-alert { /* legacy class mapping */
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.danger-alert { /* legacy class mapping */
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.criteria-list { list-style: none; padding: 0; margin: 0 0 1rem 0; }
+.criteria-item { display: block; margin: 6px 0; color: #721c24; }
+.criteria-item.valid { color: #155724; }
+.criteria-item::before { content: '✕ '; }
+.criteria-item.valid::before { content: '✓ '; }
+
+/* Make form-actions buttons inline and consistent */
+.form-actions { display:flex; gap:1rem; }
+.form-actions .primary-button, .form-actions .secondary-button { flex: 0 0 auto; }
 
 /* Password field styling */
 .password-field {
@@ -877,6 +924,13 @@ a:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 450px;
+}
+
+/* Keep form buttons full-width inside form cards for vertical forms */
+.form-card button,
+.form-card .primary-button,
+.form-card .secondary-button {
+  width: 100%;
 }
 
 .form-subtitle {
