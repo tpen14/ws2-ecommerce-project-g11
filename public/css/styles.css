@@ -926,10 +926,9 @@ a:hover {
   max-width: 450px;
 }
 
-/* Keep form buttons full-width inside form cards for vertical forms */
-.form-card button,
-.form-card .primary-button,
-.form-card .secondary-button {
+/* Keep form action buttons full-width inside form cards for vertical forms */
+.form-card .form-actions .primary-button,
+.form-card .form-actions .secondary-button {
   width: 100%;
 }
 
