@@ -43,27 +43,63 @@ const upload = multer({
     }
 });
 
-// Product list route
+// Allowed product categories
+const CATEGORIES = [
+  'White Chocolate',
+  'Dark Chocolate',
+  'Milk Chocolate',
+  'Cacao Blends'
+];
+
+// Product list route (supports server-side search by name and filter by category)
 router.get('/', async (req, res) => {
-    try {
-        const db = req.app.locals.client.db(req.app.locals.dbName);
-        const products = await db.collection('products').find().toArray();
-        
-        res.render('products', {
-            title: 'Products - Chonccolate',
-            products: products || [],
-            user: req.session.user || null,
-            success: req.query.success
-        });
-    } catch (err) {
-        console.error('Error fetching products:', err);
-        res.render('products', {
-            title: 'Products - Chonccolate',
-            products: [],
-            error: 'Failed to load products',
-            user: req.session.user || null
-        });
+  try {
+    const db = req.app.locals.client.db(req.app.locals.dbName);
+
+    // Read search params from query string
+    const q = req.query.q ? String(req.query.q).trim() : '';
+    let selectedCategory = req.query.category ? String(req.query.category).trim() : '';
+
+    // sanitize category - only accept known categories
+    if (selectedCategory && !CATEGORIES.includes(selectedCategory)) {
+      selectedCategory = '';
     }
+
+    // Build MongoDB filter
+    const filter = {};
+    if (q) {
+      // case-insensitive partial match on name
+      filter.name = { $regex: q, $options: 'i' };
+    }
+    if (selectedCategory) {
+      filter.category = selectedCategory;
+    }
+
+    const products = await db.collection('products').find(filter).toArray();
+
+    res.render('products', {
+      title: 'Products - Chonccolate',
+      products: products || [],
+      user: req.session.user || null,
+      success: req.query.success,
+      error: req.query.error,
+      // pass back search state so the form can show current values
+      searchQuery: q,
+      selectedCategory: selectedCategory,
+      categories: CATEGORIES
+    });
+  } catch (err) {
+    console.error('Error fetching products:', err);
+    res.render('products', {
+      title: 'Products - Chonccolate',
+      products: [],
+      error: 'Failed to load products',
+      user: req.session.user || null,
+      searchQuery: '',
+      selectedCategory: '',
+      categories: CATEGORIES
+    });
+  }
 });
 
 // Show add product form (only for admins)
@@ -87,25 +123,47 @@ router.post('/add-product', upload.single('productImage'), async (req, res) => {
     }
     
     try {
-        const { productName, description, price } = req.body;
+        const { productName, description, price, category } = req.body;
         
         // Validate required fields
-        if (!productName || !description || !price) {
-            return res.render('add-product', {
-                title: 'Add New Product',
-                error: 'Please fill all required fields',
-                user: req.session.user
-            });
+        const nameTrim = productName ? String(productName).trim() : '';
+        const descTrim = description ? String(description).trim() : '';
+        if (!nameTrim || nameTrim.length < 2) {
+          return res.render('add-product', {
+            title: 'Add New Product',
+            error: 'Product name is required and must be at least 2 characters',
+            user: req.session.user
+          });
         }
-        
+        if (!descTrim || descTrim.length < 5) {
+          return res.render('add-product', {
+            title: 'Add New Product',
+            error: 'Description is required and must be at least 5 characters',
+            user: req.session.user
+          });
+        }
+        if (!price) {
+          return res.render('add-product', {
+            title: 'Add New Product',
+            error: 'Price is required',
+            user: req.session.user
+          });
+        }
         // Convert price to number and validate
         const priceValue = parseFloat(price);
         if (isNaN(priceValue) || priceValue <= 0) {
-            return res.render('add-product', {
-                title: 'Add New Product',
-                error: 'Please enter a valid price',
-                user: req.session.user
-            });
+          return res.render('add-product', {
+            title: 'Add New Product',
+            error: 'Please enter a valid price greater than 0',
+            user: req.session.user
+          });
+        }
+        if (!category || !CATEGORIES.includes(category)) {
+          return res.render('add-product', {
+            title: 'Add New Product',
+            error: 'Please select a valid category',
+            user: req.session.user
+          });
         }
         
         const db = req.app.locals.client.db(req.app.locals.dbName);
@@ -127,13 +185,14 @@ router.post('/add-product', upload.single('productImage'), async (req, res) => {
         }
         
         const newProduct = {
-            productId: nextId,
-            name: productName,
-            description: description,
-            price: priceValue,
-            image: imagePath,
-            createdAt: new Date(),
-            createdBy: req.session.user.userId
+          productId: nextId,
+          name: nameTrim,
+          description: descTrim,
+          price: priceValue,
+          category: category,
+          image: imagePath,
+          createdAt: new Date(),
+          createdBy: req.session.user.userId
         };
         
         console.log('Attempting to insert product:', newProduct);
@@ -187,6 +246,14 @@ router.post('/:id/delete', async (req, res) => {
       return res.redirect('/products?error=Product+not+found');
     }
 
+    // Check if this product is referenced in any orders
+    const ordersCount = await db.collection('orders').countDocuments({ 'items.productId': productId });
+    if (ordersCount > 0) {
+      console.log('Prevented delete: product used in orders', { productId, ordersCount });
+      return res.redirect('/products?error=' + encodeURIComponent('Cannot delete this product because it is already used in one or more orders.'));
+    }
+
+    // Safe to delete image file (if any) and the product itself
     if (product.image && String(product.image).startsWith('/uploads/')) {
       const filePath = path.join(__dirname, '..', 'public', product.image.replace(/^\//, ''));
       try {
@@ -256,10 +323,33 @@ router.post('/edit/:id', upload.single('productImage'), async (req, res) => {
     const productId = parseInt(req.params.id, 10);
     if (isNaN(productId)) return res.redirect('/products?error=Invalid+ID');
 
-    const { productName, description, price } = req.body;
+    const { productName, description, price, category } = req.body;
     const priceValue = parseFloat(price);
-    if (!productName || !description || isNaN(priceValue) || priceValue <= 0) {
-      return res.redirect(`/products/edit/${productId}?error=Invalid+input`);
+    const nameTrim = productName ? String(productName).trim() : '';
+    const descTrim = description ? String(description).trim() : '';
+
+    // Collect validation errors so we can show detailed feedback
+    const validationErrors = [];
+    if (!nameTrim || nameTrim.length < 2) validationErrors.push('Product name is required and must be at least 2 characters');
+    if (!descTrim || descTrim.length < 5) validationErrors.push('Description is required and must be at least 5 characters');
+    if (isNaN(priceValue) || priceValue <= 0) validationErrors.push('Price must be a number greater than 0');
+    if (!category || !CATEGORIES.includes(category)) validationErrors.push('Please select a valid category');
+
+    if (validationErrors.length > 0) {
+      // Render the edit page with submitted values and the validation message(s)
+      return res.status(400).render('edit-product', {
+        title: `Edit ${nameTrim || 'Product'}`,
+        error: validationErrors.join('. '),
+        product: {
+          productId,
+          name: productName || '',
+          description: description || '',
+          price: price || '',
+          category: category || ''
+        },
+        user: req.session.user || null,
+        success: null
+      });
     }
 
     const db = req.app.locals.client && req.app.locals.client.db && req.app.locals.client.db(req.app.locals.dbName);
@@ -272,9 +362,10 @@ router.post('/edit/:id', upload.single('productImage'), async (req, res) => {
     if (!product) return res.redirect(`/products?error=Product+not+found`);
 
     const update = {
-      name: productName,
-      description,
+      name: nameTrim,
+      description: descTrim,
       price: priceValue,
+      category: category,
       updatedAt: new Date()
     };
 

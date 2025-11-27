@@ -42,14 +42,35 @@
     <div class="products-container">
         <div class="products-header">
             <h1 class="products-title">Our Products</h1>
+
+            <!-- Search / Filter Form (moved into header for alignment) -->
+            <form action="/products" method="GET" class="products-search-form">
+                <input type="text" name="q" placeholder="Search products by name..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" />
+                <select name="category">
+                    <option value="">All Categories</option>
+                    <% if (typeof categories !== 'undefined' && categories && categories.length) { %>
+                        <% categories.forEach(function(cat) { %>
+                            <option value="<%= cat %>" <%= (typeof selectedCategory !== 'undefined' && selectedCategory === cat) ? 'selected' : '' %>><%= cat %></option>
+                        <% }) %>
+                    <% } %>
+                </select>
+                <button type="submit" class="primary-button">Search</button>
+                <a href="/products" class="secondary-button clear-search">Clear</a>
+            </form>
+
             <% if (locals.user && locals.user.role === 'admin') { %>
                 <a href="/products/add-product" class="add-product-button">+ Add Product</a>
             <% } %>
         </div>
-        
+
         <% if (typeof success !== 'undefined' && success) { %>
             <div class="alert alert-success">
                 <%= success %>
+            </div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger">
+                <%= error %>
             </div>
         <% } %>
         
@@ -62,6 +83,7 @@
                             <h3 class="product-name"><%= product.name %></h3>
                             <p class="product-description"><%= product.description %></p>
                             <p class="product-price">₱<%= (product.price || 0).toFixed(2) %></p>
+                            <p class="product-category">Category: <%= product.category || 'Uncategorized' %></p>
 
                             <% /* show Add to Cart only for users with role 'customer' */ %>
                             <% if (locals.user && locals.user.role === 'customer') { %>

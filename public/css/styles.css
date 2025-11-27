@@ -650,6 +650,79 @@ a:hover {
   margin-bottom: 1rem;
 }
 
+/* Search form inside products header */
+.products-search-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 1rem;
+  flex: 1 1 480px; /* allow grow/shrink between title and add button */
+  max-width: 720px;
+}
+.products-search-form input[type="text"] {
+  flex: 1 1 220px;
+  min-width: 0; /* allow proper shrinking inside flexbox */
+  padding: 8px;
+  border: 1px solid var(--light-brown);
+  border-radius: 4px;
+}
+.products-search-form select {
+  padding: 8px;
+  border: 1px solid var(--light-brown);
+  border-radius: 4px;
+  background: white;
+}
+.products-search-form .primary-button,
+.products-search-form .secondary-button {
+  padding: 8px 10px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.products-search-form .clear-search {
+  margin-left: 6px;
+}
+
+/* Align Add Product button with the search controls */
+.products-header .add-product-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  background-color: var(--medium-brown);
+  color: var(--white);
+  border: 1px solid var(--medium-brown);
+}
+
+/* Make input/select match control height for precise alignment */
+.products-search-form input[type="text"],
+.products-search-form select {
+  height: 40px;
+  
+  box-sizing: border-box;
+}
+
+.products-title { margin: 0; }
+
+@media (max-width: 768px) {
+  .products-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .products-search-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin: 0;
+  }
+  .products-search-form .clear-search { margin-left: 0; }
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

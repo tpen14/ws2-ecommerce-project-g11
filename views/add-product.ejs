@@ -60,12 +60,12 @@
             <form action="/products/add-product" method="POST" class="add-product-form" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="productName">Product Name *</label>
-                    <input type="text" id="productName" name="productName" required>
+                    <input type="text" id="productName" name="productName" minlength="2" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="description">Description *</label>
-                    <textarea id="description" name="description" rows="4" required></textarea>
+                    <textarea id="description" name="description" rows="4" minlength="5" required></textarea>
                 </div>
                 
                 <div class="form-group">
@@ -74,6 +74,17 @@
                         <span class="price-symbol">₱</span>
                         <input type="number" id="price" name="price" min="0.01" step="0.01" required>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category *</label>
+                    <select id="category" name="category" required>
+                        <option value="">-- Select Category --</option>
+                        <option value="White Chocolate">White Chocolate</option>
+                        <option value="Dark Chocolate">Dark Chocolate</option>
+                        <option value="Milk Chocolate">Milk Chocolate</option>
+                        <option value="Cacao Blends">Cacao Blends</option>
+                    </select>
                 </div>
                 
                 <div class="form-group">
