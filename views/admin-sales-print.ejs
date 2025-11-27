@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    @media print {
+      .no-print { display: none; }
+    }
+    .report-header { display:flex; justify-content:space-between; align-items:center; }
+  </style>
+</head>
+<body>
+  <div style="padding:20px;">
+    <div class="report-header">
+      <div>
+        <h2>Sales Report</h2>
+        <div>Filters: From <%= filters.start||'--' %> To <%= filters.end||'--' %> Status: <%= filters.status||'All' %></div>
+      </div>
+      <div>
+        <strong>Total Sales:</strong> ₱<%= (summary.totalSales||0).toFixed(2) %><br>
+        <strong>Orders:</strong> <%= summary.ordersCount||0 %>
+      </div>
+    </div>
+
+    <hr>
+
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Date</th>
+          <th style="text-align:right;padding:8px;border-bottom:1px solid #ddd;">Total Sales</th>
+          <th style="text-align:right;padding:8px;border-bottom:1px solid #ddd;">Orders</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% daily.forEach(r => { %>
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid #f1f1f1;"><%= r._id %></td>
+            <td style="padding:8px;border-bottom:1px solid #f1f1f1;text-align:right;">₱<%= (r.total||0).toFixed(2) %></td>
+            <td style="padding:8px;border-bottom:1px solid #f1f1f1;text-align:right;"><%= r.orders %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+  </div>
+  <script>
+    // Auto open print dialog when page loads
+    window.onload = function() {
+      window.print();
+    };
+  </script>
+</body>
+</html>

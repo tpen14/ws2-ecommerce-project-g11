@@ -38,12 +38,14 @@ const passwordRoute = require('./routes/password');
 const productsRoute = require('./routes/products');
 const cartRoute = require('./routes/cart');
 const ordersRoute = require('./routes/orders');
+const adminReportsRoute = require('./routes/adminReports');
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
 app.use('/products', productsRoute);
 app.use('/cart', cartRoute);
 app.use('/orders', ordersRoute);
+app.use('/admin/reports', adminReportsRoute);
 // Backwards-compatible admin URLs
 app.get('/admin', (req, res) => res.redirect('/users/admin'));
 

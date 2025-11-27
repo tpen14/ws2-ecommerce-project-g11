@@ -459,6 +459,28 @@ a:hover {
   padding-bottom: 1rem;
 }
 
+/* Ensure header elements wrap so long titles don't collide with action buttons */
+.dashboard-header {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.dashboard-header h1 {
+  flex: 1 1 auto;
+  min-width: 0; /* allow truncation/shrinking inside flex */
+  margin: 0;
+}
+.dashboard-header .header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.dashboard-header .header-actions .primary-button,
+.dashboard-header .header-actions .secondary-button {
+  height: 40px;
+  padding: 8px 12px;
+}
+
 .dashboard-header h1 {
   margin: 0;
   color: var(--dark-brown);
@@ -707,6 +729,17 @@ a:hover {
 }
 
 .products-title { margin: 0; }
+
+/* Chart wrapper to constrain Chart.js height in admin views */
+.chart-wrapper {
+  width: 100%;
+  height: 240px; /* fixed height to keep the chart compact */
+  max-height: 320px;
+}
+.chart-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
 
 @media (max-width: 768px) {
   .products-header {

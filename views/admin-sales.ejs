@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="navbar-brand"><img src="/images/chonccolate.png" alt="logo" class="navbar-logo">Chonccolate</a>
+    <div class="auth-buttons">
+      <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+      <a href="/users/logout" class="auth-button register">Logout</a>
+    </div>
+  </nav>
+
+  <div class="admin-container" style="margin-top:100px;">
+    <div class="dashboard-header">
+      <h1>Admin Sales Overview</h1>
+      <div class="header-actions">
+        <a href="/admin/reports/sales/export/daily?start=<%= filters.start %>&end=<%= filters.end %>&status=<%= filters.status %>" class="primary-button">Export Daily XLSX</a>
+        <a href="/admin/reports/sales/export/detailed?start=<%= filters.start %>&end=<%= filters.end %>&status=<%= filters.status %>" class="secondary-button">Export Detailed XLSX</a>
+        <a href="/admin/reports/sales/print?start=<%= filters.start %>&end=<%= filters.end %>&status=<%= filters.status %>" class="secondary-button" target="_blank" rel="noopener noreferrer">Print Preview</a>
+      </div>
+    </div>
+
+    <section class="form-card">
+      <h3>Report Actions</h3>
+      <form action="/admin/reports/sales" method="GET" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+        <label>From: <input type="date" name="start" value="<%= filters.start %>"></label>
+        <label>To: <input type="date" name="end" value="<%= filters.end %>"></label>
+        <label>Status:
+          <select name="status">
+            <option value="">All</option>
+            <% statuses.forEach(s => { %>
+              <option value="<%= s %>" <%= filters.status===s? 'selected':'' %>><%= s %></option>
+            <% }) %>
+          </select>
+        </label>
+        <button type="submit" class="primary-button">Apply Filters</button>
+      </form>
+    </section>
+
+    <section class="form-card" style="margin-top:1rem;">
+      <h3>Summary Totals</h3>
+      <p>Total Sales: ₱<strong><%= (summary.totalSales || 0).toFixed(2) %></strong></p>
+      <p>Orders Count: <strong><%= summary.ordersCount || 0 %></strong></p>
+    </section>
+
+    <section class="form-card" style="margin-top:1rem;">
+      <h3>Daily Sales</h3>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Date</th>
+            <th style="text-align:right;padding:8px;border-bottom:1px solid #ddd;">Total Sales</th>
+            <th style="text-align:right;padding:8px;border-bottom:1px solid #ddd;">Orders</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% daily.forEach(r => { %>
+            <tr>
+              <td style="padding:8px;border-bottom:1px solid #f1f1f1;"><%= r._id %></td>
+              <td style="padding:8px;border-bottom:1px solid #f1f1f1;text-align:right;">₱<%= (r.total || 0).toFixed(2) %></td>
+              <td style="padding:8px;border-bottom:1px solid #f1f1f1;text-align:right;"><%= r.orders %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <div class="chart-wrapper" style="margin-top:1rem;">
+        <canvas id="dailyChart"></canvas>
+      </div>
+    </section>
+
+    <section class="form-card" style="margin-top:1rem;">
+      <h3>Recent Orders (sample)</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Order ID</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Date</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">User</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Status</th>
+            <th style="text-align:right;padding:8px;border-bottom:1px solid #ddd;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% orders.forEach(o => { %>
+            <tr>
+              <td style="padding:8px;border-bottom:1px solid #f1f1f1;"><%= o.orderId %></td>
+              <td style="padding:8px;border-bottom:1px solid #f1f1f1;"><%= o.createdAt ? new Date(o.createdAt).toLocaleString() : '' %></td>
+              <td style="padding:8px;border-bottom:1px solid #f1f1f1;"><%= o.userId %></td>
+              <td style="padding:8px;border-bottom:1px solid #f1f1f1;"><%= o.orderStatus %></td>
+              <td style="padding:8px;border-bottom:1px solid #f1f1f1;text-align:right;">₱<%= (o.totalAmount||0).toFixed(2) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+
+  <script>
+    // Prepare chart data
+    const daily = <%- JSON.stringify(daily || []) %>;
+    const labels = daily.map(r => r._id);
+    const data = daily.map(r => Number(r.total || 0));
+
+    const ctx = document.getElementById('dailyChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{ label: 'Daily Sales', data, backgroundColor: '#8D6E63' }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+  </script>
+</body>
+</html>
