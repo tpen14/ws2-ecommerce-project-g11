@@ -1,42 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<title><%= title %></title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="robots" content="noindex" />
-<style>
-:root { --fg:#111; --muted:#666; --accent:#2563eb; }
-body { font-family: system-ui, Arial, sans-serif; color:var(--fg); display:flex;
-min-height:100dvh; }
-.wrap { margin:auto; max-width:640px; padding:2rem; text-align:center; }
-h1 { font-size:2.25rem; margin:.25rem 0; }
-p.lead { color:var(--muted); margin:.25rem 0 1rem; }
-.links { display:flex; gap:.75rem; justify-content:center; flex-wrap:wrap;
-margin-top:1rem; }
-.links a { padding:.6rem .9rem; border:1px solid #ddd; border-radius:.5rem;
-text-decoration:none; }
-.links a.primary { border-color: var(--accent); color:#fff; background:
-var(--accent); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .error-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+        .error-container {
+            max-width: 700px;
+            background: linear-gradient(135deg, rgba(30, 35, 40, 0.95) 0%, rgba(10, 20, 40, 0.95) 100%);
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--lol-red);
+            position: relative;
+        }
+        .error-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--lol-red), var(--lol-gold));
+            border-radius: 12px;
+            opacity: 0.3;
+            z-index: -1;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        .error-icon {
+            font-size: 6rem;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 20px rgba(231, 72, 86, 0.5));
+            animation: shake 0.5s ease-in-out infinite alternate;
+        }
+        @keyframes shake {
+            0% { transform: rotate(-3deg); }
+            100% { transform: rotate(3deg); }
+        }
+        .error-code {
+            font-size: 5rem;
+            font-weight: 900;
+            color: var(--lol-red);
+            text-shadow: 0 0 30px rgba(231, 72, 86, 0.8);
+            margin: 0;
+            letter-spacing: 4px;
+        }
+        .error-title {
+            font-size: 2rem;
+            color: var(--lol-white);
+            margin: 1rem 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .error-message {
+            color: var(--lol-light-gray);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .error-tip {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(200, 155, 60, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(200, 155, 60, 0.3);
+        }
+        .error-tip strong {
+            color: var(--lol-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .error-tip p {
+            color: var(--lol-white);
+            margin: 0.5rem 0 0 0;
+            font-size: 0.95rem;
+        }
+    </style>
 </head>
-<body>
-<main class="wrap" role="main" aria-labelledby="title">
-<div aria-hidden="true" style="font-size:4rem">⚠️</div>
-<h1 id="title">We hit a snag</h1>
-<p class="lead">Please try again. If this keeps happening, return to the home
-page.</p>
-<div class="links">
-<a class="primary" href="/">Try again</a>
-<a href="/">Home</a>
-<% if (locals.user) { %>
-<a href="/users/dashboard">Dashboard</a>
-<a href="/users/logout">Logout</a>
-<% } else { %>
-<a href="/users/login">Login</a>
-<a href="/users/register">Register</a>
-<% } %>
-</div>
-</main>
+<body class="error-page">
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        <h1 class="error-code">500</h1>
+        <h2 class="error-title">Server Error</h2>
+        <p class="error-message">
+            An unexpected error has occurred in the system. Our team has been notified and is working to resolve the issue.
+        </p>
+        
+        <div class="error-actions">
+            <a href="javascript:location.reload()" class="primary-button">Try Again</a>
+            <a href="/" class="secondary-button">Return Home</a>
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="secondary-button">Dashboard</a>
+            <% } else { %>
+                <a href="/users/login" class="secondary-button">Login</a>
+            <% } %>
+        </div>
+
+        <div class="error-tip">
+            <strong>What can you do?</strong>
+            <p>Refresh the page, clear your browser cache, or return to the home page. If the problem persists, please contact support.</p>
+        </div>
+    </div>
 </body>
 </html>

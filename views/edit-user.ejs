@@ -9,15 +9,24 @@
 <body class="admin-edit-page">
     <!-- Navigation Bar -->
     <nav class="navbar">
-         <a href="/" class="navbar-brand">
+        <a href="/" class="navbar-brand">
             <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
             Chonccolate
-            </a>
+        </a>
+        
         <ul class="navbar-links" id="navbarLinks">
-            <li><a href="/">Home</a></li>
+            <li><a href="/" class="active">Home</a></li>
             <li><a href="/products">Products</a></li>
             <li><a href="/about">About</a></li>
             <li><a href="/contact">Contact</a></li>
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
         </ul>
         <div class="auth-buttons" id="authButtons">
             <% if (locals.user) { %>
@@ -48,27 +57,36 @@
         <% } %>
         
         <div class="user-info-card">
-            <form action="/users/edit/<%= user.userId %>" method="POST">
+            <h3>User Information (Read-Only)</h3>
+            <div class="readonly-info">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <input type="text" id="firstName" name="firstName" value="<%= user.firstName %>" required>
+                        <label>First Name</label>
+                        <input type="text" value="<%= user.firstName %>" disabled>
                     </div>
                     
                     <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <input type="text" id="lastName" name="lastName" value="<%= user.lastName %>" required>
+                        <label>Last Name</label>
+                        <input type="text" value="<%= user.lastName %>" disabled>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" value="<%= user.email %>" required>
+                    <label>Email</label>
+                    <input type="email" value="<%= user.email %>" disabled>
                 </div>
                 
+                <div class="form-group">
+                    <label>User ID</label>
+                    <input type="text" value="<%= user.userId %>" disabled>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Admin Controls</h3>
+            <form action="/users/edit/<%= user.userId %>" method="POST">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="role">Role</label>
+                        <label for="role">Role *</label>
                         <select id="role" name="role" required>
                             <option value="customer" <%= user.role === 'customer' ? 'selected' : '' %>>Customer</option>
                             <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
@@ -76,7 +94,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="accountStatus">Account Status</label>
+                        <label for="accountStatus">Account Status *</label>
                         <select id="accountStatus" name="accountStatus" required>
                             <option value="active" <%= user.accountStatus === 'active' ? 'selected' : '' %>>Active</option>
                             <option value="suspended" <%= user.accountStatus === 'suspended' ? 'selected' : '' %>>Suspended</option>
@@ -93,12 +111,6 @@
         </div>
     </div>
 
-    <!-- JavaScript for mobile menu toggle -->
-    <script>
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('navbarLinks').classList.toggle('active');
-            document.getElementById('authButtons').classList.toggle('active');
-        });
-    </script>
+
 </body>
 </html>

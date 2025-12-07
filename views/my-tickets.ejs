@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+     <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+        </a>
+        
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/" Home</a></li>
+            <li><a href="/products">Products</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
+               <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <div class="my-tickets-container">
+        <h1>My Support Tickets</h1>
+        <a href="/contact" class="primary-button">Create New Ticket</a>
+
+        <% if (tickets.length === 0) { %>
+            <p class="no-data">You haven't created any tickets yet.</p>
+        <% } else { %>
+            <div class="tickets-list">
+                <% tickets.forEach(ticket => { %>
+                    <div class="ticket-card">
+                        <div class="ticket-card-header">
+                            <h3><%= ticket.subject %></h3>
+                            <span class="badge status-<%= ticket.status.replace(' ', '-') %>"><%= ticket.status %></span>
+                        </div>
+                        <p class="ticket-preview"><%= ticket.message.substring(0, 150) %>...</p>
+                        <div class="ticket-card-footer">
+                            <span class="badge priority-<%= ticket.priority %>"><%= ticket.priority %></span>
+                            <span><%= new Date(ticket.createdAt).toLocaleDateString() %></span>
+                            <a href="/tickets/<%= ticket.ticketId %>" class="btn-small">View Details</a>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>

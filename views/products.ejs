@@ -15,10 +15,9 @@
         </a>
         
         <ul class="navbar-links" id="navbarLinks">
-            <li><a href="/" class="active">Home</a></li>
-            <li><a href="/products">Products</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/contact">Contact</a></li>
+            <li><a href="/" >Home</a></li>
+            <li><a href="/products" class="active">Products</a></li>
+            
 
             <% if (locals.user && locals.user.role === 'customer') { %>
               <li><a href="/cart">Cart</a></li>
@@ -27,6 +26,8 @@
             <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
               <li><a href="/orders">Orders</a></li>
             <% } %>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
         </ul>
         <div class="auth-buttons" id="authButtons">
             <% if (locals.user) { %>
@@ -43,7 +44,7 @@
         <div class="products-header">
             <h1 class="products-title">Our Products</h1>
 
-            <!-- Search / Filter Form (moved into header for alignment) -->
+            <!-- Search / Filter Form -->
             <form action="/products" method="GET" class="products-search-form">
                 <input type="text" name="q" placeholder="Search products by name..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" />
                 <select name="category">
@@ -87,17 +88,21 @@
 
                             <% /* show Add to Cart only for users with role 'customer' */ %>
                             <% if (locals.user && locals.user.role === 'customer') { %>
-                                <form action="/cart/add" method="POST" class="add-to-cart-form" style="margin-top:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+                                <form action="/cart/add" method="POST" class="add-to-cart-form">
                                     <input type="hidden" name="productId" value="<%= product.productId %>">
-                                    <input type="number" name="quantity" value="1" min="1" class="quantity-input" style="width:64px; padding:0.25rem;">
+                                    <div class="quantity-controls-products">
+                                        <button type="button" class="qty-btn-product qty-minus-product" onclick="decreaseQty(this)">−</button>
+                                        <input type="number" name="quantity" value="1" min="1" class="quantity-input-product" readonly>
+                                        <button type="button" class="qty-btn-product qty-plus-product" onclick="increaseQty(this)">+</button>
+                                    </div>
                                     <button type="submit" class="primary-button">Add to Cart</button>
                                 </form>
                             <% } %>
 
                             <% if (locals.user && locals.user.role === 'admin') { %>
-                                <div class="admin-controls" style="margin-top:0.75rem; display:flex; gap:0.5rem;">
+                                <div class="admin-controls">
                                     <a href="/products/edit/<%= product.productId %>" class="secondary-button">Edit</a>
-                                    <form action="/products/<%= product.productId %>/delete" method="POST" onsubmit="return confirm('Delete this product?');" style="margin:0;">
+                                    <form action="/products/<%= product.productId %>/delete" method="POST" onsubmit="return confirm('Delete this product?');">
                                         <button type="submit" class="secondary-button delete-button">Delete</button>
                                     </form>
                                 </div>
@@ -139,12 +144,31 @@
         </div>
     </footer>
     
-    <!-- JavaScript for mobile menu toggle -->
+    <!-- JavaScript for quantity controls and mobile menu -->
     <script>
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('navbarLinks').classList.toggle('active');
-            document.getElementById('authButtons').classList.toggle('active');
-        });
+        // Quantity control functions
+        function increaseQty(button) {
+            const input = button.parentElement.querySelector('input[name="quantity"]');
+            let currentValue = parseInt(input.value) || 1;
+            input.value = currentValue + 1;
+        }
+
+        function decreaseQty(button) {
+            const input = button.parentElement.querySelector('input[name="quantity"]');
+            let currentValue = parseInt(input.value) || 1;
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        }
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                document.getElementById('navbarLinks').classList.toggle('active');
+                document.getElementById('authButtons').classList.toggle('active');
+            });
+        }
     </script>
 </body>
 </html>

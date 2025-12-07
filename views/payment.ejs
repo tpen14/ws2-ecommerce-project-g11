@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .payment-container {
+      max-width: 900px;
+      margin: 100px auto 40px;
+      padding: 0 20px;
+    }
+
+    .payment-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .payment-header h1 {
+      color: var(--lol-gold);
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
+      margin-bottom: 10px;
+    }
+
+    .payment-header p {
+      color: var(--lol-light-gray);
+      font-size: 1.1rem;
+    }
+
+    .payment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .order-summary {
+      background: linear-gradient(135deg, rgba(30, 35, 40, 0.95) 0%, rgba(10, 20, 40, 0.95) 100%);
+      border: 2px solid var(--lol-gold);
+      border-radius: 12px;
+      padding: 30px;
+    }
+
+    .order-summary h2 {
+      color: var(--lol-gold);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(200, 155, 60, 0.2);
+      color: var(--lol-white);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--lol-gold);
+      margin-top: 10px;
+      padding-top: 20px;
+      border-top: 2px solid var(--lol-gold);
+    }
+
+    .payment-methods {
+      background: linear-gradient(135deg, rgba(30, 35, 40, 0.95) 0%, rgba(10, 20, 40, 0.95) 100%);
+      border: 2px solid var(--lol-gold);
+      border-radius: 12px;
+      padding: 30px;
+    }
+
+    .payment-methods h2 {
+      color: var(--lol-gold);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .payment-option {
+      background: rgba(1, 10, 19, 0.6);
+      border: 2px solid var(--lol-light-gray);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .payment-option:hover {
+      border-color: var(--lol-accent);
+      background: rgba(11, 198, 227, 0.1);
+      transform: translateX(5px);
+    }
+
+    .payment-option.active {
+      border-color: var(--lol-gold);
+      background: rgba(200, 155, 60, 0.1);
+      box-shadow: 0 0 20px rgba(200, 155, 60, 0.3);
+    }
+
+    .payment-option input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      cursor: pointer;
+      accent-color: var(--lol-gold);
+    }
+
+    .payment-option-content {
+      flex: 1;
+    }
+
+    .payment-option-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--lol-gold);
+      margin-bottom: 5px;
+    }
+
+    .payment-option-desc {
+      font-size: 0.9rem;
+      color: var(--lol-light-gray);
+    }
+
+    .payment-option-icon {
+      font-size: 2rem;
+      filter: drop-shadow(0 0 5px var(--lol-gold));
+    }
+
+    .payment-details {
+      background: rgba(1, 10, 19, 0.6);
+      border: 2px solid var(--lol-accent);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .payment-details.active {
+      display: block;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .payment-details h3 {
+      color: var(--lol-accent);
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+    }
+
+    .form-group-payment {
+      margin-bottom: 15px;
+    }
+
+    .form-group-payment label {
+      display: block;
+      color: var(--lol-gold);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group-payment input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(1, 10, 19, 0.8);
+      border: 2px solid var(--lol-light-gray);
+      border-radius: 6px;
+      color: var(--lol-white);
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    .form-group-payment input:focus {
+      outline: none;
+      border-color: var(--lol-accent);
+      box-shadow: 0 0 10px rgba(11, 198, 227, 0.3);
+    }
+
+    .card-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 15px;
+    }
+
+    .qr-code-display {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .qr-code-display img {
+      max-width: 250px;
+      border: 3px solid var(--lol-gold);
+      border-radius: 8px;
+      padding: 10px;
+      background: white;
+    }
+
+    .qr-instructions {
+      color: var(--lol-light-gray);
+      margin-top: 15px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .payment-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+      margin-top: 30px;
+    }
+
+    .alert-payment {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .alert-payment.show {
+      display: block;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    .alert-success {
+      background: rgba(15, 186, 129, 0.2);
+      border: 2px solid var(--lol-green);
+      color: var(--lol-green);
+    }
+
+    .alert-error {
+      background: rgba(231, 72, 86, 0.2);
+      border: 2px solid var(--lol-red);
+      color: var(--lol-red);
+    }
+
+    @media (max-width: 768px) {
+      .payment-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card-row {
+        grid-template-columns: 1fr;
+      }
+
+      .payment-actions {
+        flex-direction: column;
+      }
+
+      .payment-actions button,
+      .payment-actions a {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">
+      <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+      Chonccolate
+    </a>
+    
+    <ul class="navbar-links" id="navbarLinks">
+      <li><a href="/">Home</a></li>
+      <li><a href="/products">Products</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/contact">Contact</a></li>
+
+      <% if (locals.user && locals.user.role === 'customer') { %>
+        <li><a href="/cart">Cart</a></li>
+      <% } %>
+
+      <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+        <li><a href="/orders">Orders</a></li>
+      <% } %>
+    </ul>
+    <div class="auth-buttons" id="authButtons">
+      <% if (locals.user) { %>
+        <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+        <a href="/users/logout" class="auth-button register">Logout</a>
+      <% } else { %>
+        <a href="/users/login" class="auth-button login">Login</a>
+        <a href="/users/register" class="auth-button register">Register</a>
+      <% } %>
+    </div>
+  </nav>
+
+  <div class="payment-container">
+    <div class="payment-header">
+      <h1>💳 Payment</h1>
+      <p>Complete your payment for Order #<%= order.orderId.substring(0, 8) %></p>
+    </div>
+
+    <div id="alertBox" class="alert-payment"></div>
+
+    <div class="payment-grid">
+      <!-- Order Summary -->
+      <div class="order-summary">
+        <h2>Order Summary</h2>
+        <div class="summary-row">
+          <span>Order ID:</span>
+          <span>#<%= order.orderId.substring(0, 8) %></span>
+        </div>
+        <div class="summary-row">
+          <span>Items:</span>
+          <span><%= order.items.length %> item(s)</span>
+        </div>
+        <% order.items.forEach(item => { %>
+          <div class="summary-row" style="font-size: 0.9rem; color: var(--lol-light-gray);">
+            <span><%= item.name %> x <%= item.quantity %></span>
+            <span>₱<%= item.subtotal.toFixed(2) %></span>
+          </div>
+        <% }) %>
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span>₱<%= order.totalAmount.toFixed(2) %></span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping:</span>
+          <span>FREE</span>
+        </div>
+        <div class="summary-row">
+          <span>Total Amount:</span>
+          <span>₱<%= order.totalAmount.toFixed(2) %></span>
+        </div>
+      </div>
+
+      <!-- Payment Methods -->
+      <div class="payment-methods">
+        <h2>Select Payment Method</h2>
+        
+        <form id="paymentForm">
+          <!-- Cash on Delivery -->
+          <div class="payment-option" data-method="cod">
+            <input type="radio" name="paymentMethod" value="cod" id="cod">
+            <span class="payment-option-icon">🚚</span>
+            <div class="payment-option-content">
+              <div class="payment-option-title">Cash on Delivery</div>
+              <div class="payment-option-desc">Pay when you receive your order</div>
+            </div>
+          </div>
+
+          <!-- QR Payment -->
+          <div class="payment-option" data-method="qr">
+            <input type="radio" name="paymentMethod" value="qr" id="qr">
+            <span class="payment-option-icon">📱</span>
+            <div class="payment-option-content">
+              <div class="payment-option-title">QR Code Payment</div>
+              <div class="payment-option-desc">GCash, PayMaya, or Bank QR</div>
+            </div>
+          </div>
+
+          <!-- PayPal -->
+          <div class="payment-option" data-method="paypal">
+            <input type="radio" name="paymentMethod" value="paypal" id="paypal">
+            <span class="payment-option-icon">🅿️</span>
+            <div class="payment-option-content">
+              <div class="payment-option-title">PayPal</div>
+              <div class="payment-option-desc">Pay with your PayPal account</div>
+            </div>
+          </div>
+
+          <!-- Credit/Debit Card -->
+          <div class="payment-option" data-method="card">
+            <input type="radio" name="paymentMethod" value="card" id="card">
+            <span class="payment-option-icon">💳</span>
+            <div class="payment-option-content">
+              <div class="payment-option-title">Credit/Debit Card</div>
+              <div class="payment-option-desc">Visa, Mastercard, Amex accepted</div>
+            </div>
+          </div>
+
+          <!-- Payment Details Sections -->
+          
+          <!-- COD Details -->
+          <div id="cod-details" class="payment-details">
+            <h3>Cash on Delivery Information</h3>
+            <p style="color: var(--lol-light-gray); line-height: 1.6;">
+              📦 Your order will be processed and shipped to your address.<br>
+              💵 Payment will be collected upon delivery.<br>
+              ⏱️ Please prepare the exact amount of <strong style="color: var(--lol-gold);">₱<%= order.totalAmount.toFixed(2) %></strong>
+            </p>
+          </div>
+
+          <!-- QR Details -->
+          <div id="qr-details" class="payment-details">
+            <h3>Scan QR Code to Pay</h3>
+            <div class="qr-code-display">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=CHONCCOLATE-ORDER-<%= order.orderId %>" alt="QR Code">
+              <div class="qr-instructions">
+                1. Open your GCash, PayMaya, or banking app<br>
+                2. Scan this QR code<br>
+                3. Confirm payment of ₱<%= order.totalAmount.toFixed(2) %><br>
+                4. Click "Confirm Payment" below
+              </div>
+            </div>
+          </div>
+
+          <!-- PayPal Details -->
+          <div id="paypal-details" class="payment-details">
+            <h3>PayPal Payment</h3>
+            <div class="form-group-payment">
+              <label for="paypalEmail">PayPal Email Address *</label>
+              <input type="email" id="paypalEmail" name="paypalEmail" placeholder="your@email.com" required>
+            </div>
+            <p style="color: var(--lol-light-gray); font-size: 0.9rem; margin-top: 10px;">
+              💡 You will be redirected to PayPal to complete the payment
+            </p>
+          </div>
+
+          <!-- Card Details -->
+          <div id="card-details" class="payment-details">
+            <h3>Card Information</h3>
+            <div class="form-group-payment">
+              <label for="cardNumber">Card Number *</label>
+              <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+            </div>
+            <div class="form-group-payment">
+              <label for="cardName">Cardholder Name *</label>
+              <input type="text" id="cardName" name="cardName" placeholder="John Doe" required>
+            </div>
+            <div class="card-row">
+              <div class="form-group-payment">
+                <label for="expiryDate">Expiry Date *</label>
+                <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" maxlength="5" required>
+              </div>
+              <div class="form-group-payment">
+                <label for="cvv">CVV *</label>
+                <input type="text" id="cvv" name="cvv" placeholder="123" maxlength="4" required>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="payment-actions">
+      <a href="/orders/<%= order.orderId %>" class="secondary-button">Cancel</a>
+      <button type="button" id="confirmPayment" class="primary-button" disabled>Confirm Payment</button>
+    </div>
+  </div>
+
+  <footer class="footer"></footer>
+
+  <script>
+    const paymentOptions = document.querySelectorAll('.payment-option');
+    const paymentDetails = document.querySelectorAll('.payment-details');
+    const confirmButton = document.getElementById('confirmPayment');
+    const alertBox = document.getElementById('alertBox');
+    let selectedMethod = null;
+
+    // Handle payment option selection
+    paymentOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const radio = this.querySelector('input[type="radio"]');
+        radio.checked = true;
+        
+        // Update visual selection
+        paymentOptions.forEach(opt => opt.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Show corresponding details
+        const method = this.dataset.method;
+        selectedMethod = method;
+        paymentDetails.forEach(detail => detail.classList.remove('active'));
+        document.getElementById(method + '-details').classList.add('active');
+        
+        // Enable confirm button
+        confirmButton.disabled = false;
+      });
+    });
+
+    // Format card number
+    const cardNumberInput = document.getElementById('cardNumber');
+    if (cardNumberInput) {
+      cardNumberInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        e.target.value = formattedValue;
+      });
+    }
+
+    // Format expiry date
+    const expiryInput = document.getElementById('expiryDate');
+    if (expiryInput) {
+      expiryInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+          value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        }
+        e.target.value = value;
+      });
+    }
+
+    // Confirm payment
+    confirmButton.addEventListener('click', async function() {
+      if (!selectedMethod) {
+        showAlert('Please select a payment method', 'error');
+        return;
+      }
+
+      confirmButton.disabled = true;
+      confirmButton.textContent = 'Processing...';
+
+      const paymentData = {
+        paymentMethod: selectedMethod
+      };
+
+      // Add method-specific data
+      if (selectedMethod === 'card') {
+        const cardNumber = document.getElementById('cardNumber').value;
+        const cardName = document.getElementById('cardName').value;
+        const expiryDate = document.getElementById('expiryDate').value;
+        const cvv = document.getElementById('cvv').value;
+
+        if (!cardNumber || !cardName || !expiryDate || !cvv) {
+          showAlert('Please fill in all card details', 'error');
+          confirmButton.disabled = false;
+          confirmButton.textContent = 'Confirm Payment';
+          return;
+        }
+
+        paymentData.cardNumber = cardNumber;
+        paymentData.cardName = cardName;
+        paymentData.expiryDate = expiryDate;
+        paymentData.cvv = cvv;
+      }
+
+      if (selectedMethod === 'paypal') {
+        const paypalEmail = document.getElementById('paypalEmail').value;
+        if (!paypalEmail || !paypalEmail.includes('@')) {
+          showAlert('Please enter a valid PayPal email', 'error');
+          confirmButton.disabled = false;
+          confirmButton.textContent = 'Confirm Payment';
+          return;
+        }
+        paymentData.paypalEmail = paypalEmail;
+      }
+
+      try {
+        const response = await fetch('/payment/process/<%= order.orderId %>', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(paymentData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert('✅ Payment successful! Transaction ID: ' + result.transactionId, 'success');
+          setTimeout(() => {
+            window.location.href = '/orders/' + result.orderId;
+          }, 2000);
+        } else {
+          showAlert(result.message || 'Payment failed. Please try again.', 'error');
+          confirmButton.disabled = false;
+          confirmButton.textContent = 'Confirm Payment';
+        }
+      } catch (error) {
+        console.error('Payment error:', error);
+        showAlert('An error occurred. Please try again.', 'error');
+        confirmButton.disabled = false;
+        confirmButton.textContent = 'Confirm Payment';
+      }
+    });
+
+    function showAlert(message, type) {
+      alertBox.textContent = message;
+      alertBox.className = 'alert-payment alert-' + type + ' show';
+      setTimeout(() => {
+        alertBox.classList.remove('show');
+      }, 5000);
+    }
+
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menuToggle');
+    if (menuToggle) {
+      menuToggle.addEventListener('click', function() {
+        document.getElementById('navbarLinks').classList.toggle('active');
+        document.getElementById('authButtons').classList.toggle('active');
+      });
+    }
+  </script>
+</body>
+</html>

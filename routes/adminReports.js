@@ -3,7 +3,7 @@ const router = express.Router();
 const XLSX = require('xlsx');
 
 // Reuse order statuses from orders route semantics
-const STATUSES = ['to_pay','to_ship','to_receive','completed','refund','cancelled'];
+const STATUSES = ['to pay','to ship','to receive','completed','refund','cancelled'];
 
 // Admin sales overview
 router.get('/sales', async (req, res) => {
@@ -195,3 +195,4 @@ router.get('/sales/print', async (req, res) => {
 });
 
 module.exports = router;
+

@@ -3,7 +3,7 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 
 // statuses allowed
-const STATUSES = ['to_pay','to_ship','to_receive','completed','refund','cancelled'];
+const STATUSES = ['to pay','to ship','to receive','completed','refund','cancelled'];
 
 // list orders (admin OR customer)
 router.get('/', async (req, res) => {
@@ -115,7 +115,7 @@ router.post('/', async (req, res) => {
     userId: user.userId,
     items,
     totalAmount,
-    orderStatus: 'to_pay',
+    orderStatus: 'to pay',
     createdAt: new Date(),
     updatedAt: new Date()
   };

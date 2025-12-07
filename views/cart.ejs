@@ -14,18 +14,19 @@
         </a>
         
         <ul class="navbar-links" id="navbarLinks">
-            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/" >Home</a></li>
             <li><a href="/products">Products</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/contact">Contact</a></li>
+       
 
             <% if (locals.user && locals.user.role === 'customer') { %>
-              <li><a href="/cart">Cart</a></li>
+              <li><a href="/cart" class="active">Cart</a></li>
             <% } %>
 
             <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
               <li><a href="/orders">Orders</a></li>
             <% } %>
+                 <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
         </ul>
         <div class="auth-buttons" id="authButtons">
             <% if (locals.user) { %>
@@ -38,71 +39,175 @@
         </div>
     </nav>
 
-  <div class="products-container">
-    <h2>Your Cart</h2>
+  <div class="cart-container">
+    <h2 class="cart-title">Your Cart</h2>
 
     <% if (cart.items && cart.items.length > 0) { %>
-      <table class="cart-table">
-        <thead>
-          <tr><th>Item</th><th>Price</th><th>Qty</th><th>Subtotal</th><th></th></tr>
-        </thead>
-        <tbody>
-          <% cart.items.forEach(item => { %>
+      <div class="cart-content">
+        <table class="cart-table">
+          <thead>
             <tr>
-              <td style="display:flex;align-items:center;gap:12px;">
-                <img src="<%= item.image %>" alt="" style="width:60px;height:60px;object-fit:cover;border-radius:6px;">
-                <div>
-                  <strong><%= item.name %></strong>
-                  <div style="color:#666;font-size:0.95rem;"><%= item.description ? item.description.substring(0,80) : '' %></div>
-                </div>
-              </td>
-              <td>₱<%= item.price.toFixed(2) %></td>
-              <td>
-                <form action="/cart/update" method="POST" style="display:flex;align-items:center;gap:8px;">
-                  <input type="hidden" name="productId" value="<%= item.productId %>">
-                  <input type="number" name="quantity" value="<%= item.quantity %>" min="0" style="width:60px;padding:6px;border:1px solid var(--light-brown);border-radius:4px;box-sizing:border-box;vertical-align:middle;">
-                  <button type="submit" class="secondary-button" style="padding:6px 10px;height:36px;display:inline-flex;align-items:center;">Update</button>
-                </form>
-              </td>
-              <td>₱<%= item.subtotal.toFixed(2) %></td>
-              <td>
-                <form action="/cart/remove" method="POST" style="display:inline;">
-                  <input type="hidden" name="productId" value="<%= item.productId %>">
-                  <button type="submit" class="secondary-button delete-button" style="padding:6px 10px;">Remove</button>
-                </form>
-              </td>
+              <th>Item</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Subtotal</th>
+              <th></th>
             </tr>
-          <% }) %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% cart.items.forEach(item => { %>
+              <tr class="cart-item-row">
+                <td class="cart-item-cell">
+                  <img src="<%= item.image %>" alt="<%= item.name %>" class="cart-item-image">
+                  <div class="cart-item-info">
+                    <strong class="cart-item-name"><%= item.name %></strong>
+                    <div class="cart-item-description"><%= item.description ? item.description.substring(0,80) : '' %></div>
+                  </div>
+                </td>
+                <td class="item-price" data-price="<%= item.price %>">₱<%= item.price.toFixed(2) %></td>
+                <td>
+                  <div class="quantity-controls">
+                    <button type="button" class="qty-btn qty-minus" data-product-id="<%= item.productId %>">−</button>
+                    <input type="number" 
+                           name="quantity" 
+                           value="<%= item.quantity %>" 
+                           min="0" 
+                           class="quantity-input cart-quantity" 
+                           data-product-id="<%= item.productId %>"
+                           readonly>
+                    <button type="button" class="qty-btn qty-plus" data-product-id="<%= item.productId %>">+</button>
+                    <form action="/cart/update" method="POST" class="quantity-form" data-product-id="<%= item.productId %>" style="display:none;">
+                      <input type="hidden" name="productId" value="<%= item.productId %>">
+                      <input type="hidden" name="quantity" value="<%= item.quantity %>" class="hidden-quantity">
+                    </form>
+                  </div>
+                </td>
+                <td class="item-subtotal">₱<%= item.subtotal.toFixed(2) %></td>
+                <td>
+                  <form action="/cart/remove" method="POST" class="remove-form">
+                    <input type="hidden" name="productId" value="<%= item.productId %>">
+                    <button type="submit" class="remove-button">Remove</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
 
-      <div style="margin-top:1rem; display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
-        <div><strong>Total: ₱<%= (cart.totalAmount||0).toFixed(2) %></strong></div>
-        <div style="display:flex; gap:0.75rem; flex-direction:column; min-width:280px;">
-          <a href="/products" class="secondary-button" style="align-self:flex-end;padding:0.6rem 1rem;">Continue Shopping</a>
-
-          <!-- Checkout form: ask for Name, Email, Shipping Address -->
-          <form action="/cart/checkout" method="POST" style="margin:0;display:flex;flex-direction:column;gap:8px;">
-            <label style="font-weight:600;">Customer Name</label>
-            <input name="customerName" type="text" required placeholder="Full name" value="<%= (locals.user ? (locals.user.firstName + ' ' + locals.user.lastName) : '') %>" style="padding:8px;border:1px solid var(--light-brown);border-radius:6px;">
-
-            <label style="font-weight:600;">Email</label>
-            <input name="customerEmail" type="email" required placeholder="you@example.com" value="<%= (locals.user ? locals.user.email : '') %>" style="padding:8px;border:1px solid var(--light-brown);border-radius:6px;">
-
-            <label style="font-weight:600;">Shipping Address</label>
-            <textarea name="shippingAddress" required placeholder="Street, City, ZIP, Country" rows="3" style="padding:8px;border:1px solid var(--light-brown);border-radius:6px;"><%= '' %></textarea>
-
-            <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
-              <button type="submit" class="primary-button">Checkout</button>
+        <div class="cart-summary-bottom">
+          <div class="cart-total-section">
+            <div class="total-row">
+              <span class="total-label">Subtotal:</span>
+              <span class="total-value" id="cart-subtotal">₱<%= (cart.totalAmount||0).toFixed(2) %></span>
             </div>
-          </form>
+            <div class="total-row">
+              <span class="total-label">Shipping:</span>
+              <span class="total-value">₱0.00</span>
+            </div>
+            <div class="total-row total-final">
+              <span class="total-label">Total:</span>
+              <span class="total-value" id="cart-total">₱<%= (cart.totalAmount||0).toFixed(2) %></span>
+            </div>
+          </div>
+
+          <div class="checkout-section">
+            <a href="/products" class="secondary-button continue-shopping">Continue Shopping</a>
+
+            <form action="/cart/checkout" method="POST" class="checkout-form">
+              <h3>Checkout Information</h3>
+              
+              <label>Customer Name</label>
+              <input name="customerName" type="text" required placeholder="Full name" value="<%= (locals.user ? (locals.user.firstName + ' ' + locals.user.lastName) : '') %>">
+
+              <label>Email</label>
+              <input name="customerEmail" type="email" required placeholder="you@example.com" value="<%= (locals.user ? locals.user.email : '') %>">
+
+              <label>Shipping Address</label>
+              <textarea name="shippingAddress" required placeholder="Street, Barangay, City, Province, Region" rows="4"><% if (locals.user && locals.user.address && typeof locals.user.address === 'object') { %><% 
+                const parts = [];
+                if (locals.user.address.street) parts.push(locals.user.address.street);
+                if (locals.user.address.barangay) parts.push(locals.user.address.barangay);
+                if (locals.user.address.city) parts.push(locals.user.address.city);
+                if (locals.user.address.province) parts.push(locals.user.address.province);
+                if (locals.user.address.region) parts.push(locals.user.address.region);
+                if (locals.user.address.postalCode) parts.push('ZIP: ' + locals.user.address.postalCode);
+              %><%= parts.join(', ') %><% } else if (locals.user && locals.user.address && typeof locals.user.address === 'string') { %><%= locals.user.address %><% } %></textarea>
+
+              <button type="submit" class="primary-button checkout-button">Proceed to Checkout</button>
+            </form>
+          </div>
         </div>
       </div>
     <% } else { %>
-      <p>Your cart is empty.</p>
+      <div class="empty-cart">
+        <p>Your cart is empty.</p>
+        <a href="/products" class="primary-button">Browse Products</a>
+      </div>
     <% } %>
   </div>
 
   <footer class="footer"></footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Quantity control buttons
+      document.querySelectorAll('.qty-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const productId = this.dataset.productId;
+          const input = document.querySelector(`.cart-quantity[data-product-id="${productId}"]`);
+          const form = document.querySelector(`.quantity-form[data-product-id="${productId}"]`);
+          const hiddenInput = form.querySelector('.hidden-quantity');
+          
+          let currentValue = parseInt(input.value) || 0;
+          
+          if (this.classList.contains('qty-plus')) {
+            currentValue++;
+          } else if (this.classList.contains('qty-minus') && currentValue > 0) {
+            currentValue--;
+          }
+          
+          input.value = currentValue;
+          hiddenInput.value = currentValue;
+          
+          updateCartTotals();
+          
+          // Auto-submit after a short delay
+          clearTimeout(this.updateTimeout);
+          this.updateTimeout = setTimeout(() => {
+            form.submit();
+          }, 800);
+        });
+      });
+      
+      function updateCartTotals() {
+        let grandTotal = 0;
+        
+        document.querySelectorAll('.cart-item-row').forEach(row => {
+          const priceCell = row.querySelector('.item-price');
+          const quantityInput = row.querySelector('.cart-quantity');
+          const subtotalCell = row.querySelector('.item-subtotal');
+          
+          const price = parseFloat(priceCell.dataset.price);
+          const quantity = parseInt(quantityInput.value) || 0;
+          const subtotal = price * quantity;
+          
+          subtotalCell.textContent = '₱' + subtotal.toFixed(2);
+          grandTotal += subtotal;
+        });
+        
+        document.getElementById('cart-subtotal').textContent = '₱' + grandTotal.toFixed(2);
+        document.getElementById('cart-total').textContent = '₱' + grandTotal.toFixed(2);
+      }
+    });
+    
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menuToggle');
+    if (menuToggle) {
+      menuToggle.addEventListener('click', function() {
+        document.getElementById('navbarLinks').classList.toggle('active');
+        document.getElementById('authButtons').classList.toggle('active');
+      });
+    }
+  </script>
 </body>
 </html>

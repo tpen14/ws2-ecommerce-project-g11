@@ -8,13 +8,38 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <nav class="navbar">
-    <a href="/" class="navbar-brand"><img src="/images/chonccolate.png" alt="logo" class="navbar-logo">Chonccolate</a>
-    <div class="auth-buttons">
-      <a href="/users/dashboard" class="auth-button login">Dashboard</a>
-      <a href="/users/logout" class="auth-button register">Logout</a>
-    </div>
-  </nav>
+  <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+        </a>
+        
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/">Home</a></li>
+            <li><a href="/products">Products</a></li>
+          
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
+              <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
 
   <div class="admin-container" style="margin-top:100px;">
     <div class="dashboard-header">
@@ -27,18 +52,34 @@
     </div>
 
     <section class="form-card">
-      <h3>Report Actions</h3>
-      <form action="/admin/reports/sales" method="GET" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
-        <label>From: <input type="date" name="start" value="<%= filters.start %>"></label>
-        <label>To: <input type="date" name="end" value="<%= filters.end %>"></label>
-        <label>Status:
-          <select name="status">
-            <option value="">All</option>
-            <% statuses.forEach(s => { %>
-              <option value="<%= s %>" <%= filters.status===s? 'selected':'' %>><%= s %></option>
-            <% }) %>
-          </select>
-        </label>
+      <h3>Report Filters</h3>
+      <form action="/admin/reports/sales" method="GET" class="sales-filter-form">
+        <div class="filter-group">
+          <label>From:
+            <input type="date" name="start" value="<%= filters.start %>" required>
+          </label>
+        </div>
+        
+        <div class="filter-group">
+          <label>To:
+            <input type="date" name="end" value="<%= filters.end %>" required>
+          </label>
+        </div>
+        
+        <div class="filter-group">
+          <label>Status:
+            <select name="status">
+              <option value="">All</option>
+              <option value="to pay" <%= filters.status === 'to pay' ? 'selected' : '' %>>To Pay</option>
+              <option value="to ship" <%= filters.status === 'to ship' ? 'selected' : '' %>>To Ship</option>
+              <option value="to receive" <%= filters.status === 'to receive' ? 'selected' : '' %>>To Receive</option>
+              <option value="completed" <%= filters.status === 'completed' ? 'selected' : '' %>>Completed</option>
+              <option value="refund" <%= filters.status === 'refund' ? 'selected' : '' %>>Refund</option>
+              <option value="cancelled" <%= filters.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+            </select>
+          </label>
+        </div>
+        
         <button type="submit" class="primary-button">Apply Filters</button>
       </form>
     </section>

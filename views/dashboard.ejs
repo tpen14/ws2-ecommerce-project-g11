@@ -15,10 +15,9 @@
         </a>
         
         <ul class="navbar-links" id="navbarLinks">
-            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/">Home</a></li>
             <li><a href="/products">Products</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/contact">Contact</a></li>
+            
 
             <% if (locals.user && locals.user.role === 'customer') { %>
               <li><a href="/cart">Cart</a></li>
@@ -27,6 +26,8 @@
             <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
               <li><a href="/orders">Orders</a></li>
             <% } %>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
         </ul>
         <div class="auth-buttons" id="authButtons">
             <% if (locals.user) { %>
@@ -55,10 +56,6 @@
                 <span class="info-value"><%= user.contactNumber && user.contactNumber.trim() ? user.contactNumber : 'N/A' %></span>
             </div>
             <div class="user-info-item">
-                <span class="info-label">Incomplete Orders:</span>
-                <span class="info-value"><%= typeof incompleteOrdersCount !== 'undefined' ? incompleteOrdersCount : '0' %></span>
-            </div>
-            <div class="user-info-item">
                 <span class="info-label">User ID:</span>
                 <span class="info-value"><%= user.userId %></span>
             </div>
@@ -76,7 +73,23 @@
             </div>
             <div class="user-info-item">
                 <span class="info-label">Address:</span>
-                <span class="info-value"><%= user.address && user.address.trim() ? user.address : 'N/A' %></span>
+                <span class="info-value">
+                    <% if (user.address && typeof user.address === 'object' && (user.address.region || user.address.street)) { %>
+                        <% 
+                            const parts = [];
+                            if (user.address.street) parts.push(user.address.street);
+                            if (user.address.barangay) parts.push(user.address.barangay);
+                            if (user.address.city) parts.push(user.address.city);
+                            if (user.address.province) parts.push(user.address.province);
+                            if (user.address.region) parts.push(user.address.region);
+                        %>
+                        <%= parts.length > 0 ? parts.join(', ') : 'N/A' %>
+                    <% } else if (user.address && typeof user.address === 'string' && user.address.trim()) { %>
+                        <%= user.address %>
+                    <% } else { %>
+                        N/A
+                    <% } %>
+                </span>
             </div>
         </div>
 
@@ -85,7 +98,46 @@
             <% if (user.role === 'admin') { %>
                 <a href="/users/admin" class="dashboard-action admin-link">Admin Dashboard</a>
                 <a href="/admin/reports/sales" class="dashboard-action admin-link">Sales Reports</a>
+                <a href="/admin/tickets" class="dashboard-action admin-link">Support Tickets</a>
+            <% } else { %>
+                <a href="/my-tickets" class="dashboard-action">My Tickets</a>
             <% } %>
+        </div>
+
+        <div class="user-info-card order-status-card">
+            <h2>Orders by Status</h2>
+            <div class="status-grid">
+                <div class="status-item to-pay">
+                    <span class="status-label">To Pay</span>
+                    <span class="status-count"><%= statusCounts['to pay'] || 0 %></span>
+                    <a href="/orders?status=to%20pay" class="status-link">View Orders →</a>
+                </div>
+                <div class="status-item to-ship">
+                    <span class="status-label">To Ship</span>
+                    <span class="status-count"><%= statusCounts['to ship'] || 0 %></span>
+                    <a href="/orders?status=to%20ship" class="status-link">View Orders →</a>
+                </div>
+                <div class="status-item to-receive">
+                    <span class="status-label">To Receive</span>
+                    <span class="status-count"><%= statusCounts['to receive'] || 0 %></span>
+                    <a href="/orders?status=to%20receive" class="status-link">View Orders →</a>
+                </div>
+                <div class="status-item completed">
+                    <span class="status-label">Completed</span>
+                    <span class="status-count"><%= statusCounts['completed'] || 0 %></span>
+                    <a href="/orders?status=completed" class="status-link">View Orders →</a>
+                </div>
+                <div class="status-item refund">
+                    <span class="status-label">Refund</span>
+                    <span class="status-count"><%= statusCounts['refund'] || 0 %></span>
+                    <a href="/orders?status=refund" class="status-link">View Orders →</a>
+                </div>
+                <div class="status-item cancelled">
+                    <span class="status-label">Cancelled</span>
+                    <span class="status-count"><%= statusCounts['cancelled'] || 0 %></span>
+                    <a href="/orders?status=cancelled" class="status-link">View Orders →</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -96,5 +148,34 @@
             document.getElementById('authButtons').classList.toggle('active');
         });
     </script>
+        <footer class="footer">
+    <div class="footer-container">
+
+        
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-section">
+            <h3>Legal</h3>
+            <ul>
+                <li><a href="/terms">Terms of Service</a></li>
+                <li><a href="/privacy">Privacy Policy</a></li>
+                <li><a href="/return-policy">Return Policy</a></li>
+            </ul>
+        </div>
+        
+     
+    <div class="footer-bottom">
+        <p>&copy; <%= new Date().getFullYear() %> Chonccolate. All rights reserved.</p>
+    </div>
+</footer>
+
 </body>
 </html>

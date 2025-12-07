@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="contact-page">
+   <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+        </a>
+        
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/">Home</a></li>
+            <li><a href="/products">Products</a></li>
+            
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
+
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact" class="active">Contact</a></li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <div class="contact-container">
+        <div class="contact-header">
+            <h1>Contact Us</h1>
+            <p>Have a question or concern? Send us a message and we'll get back to you as soon as possible.</p>
+        </div>
+
+        <form action="/contact" method="POST" class="form-card contact-form">
+            <% if (typeof success !== 'undefined' && success) { %>
+                <div class="alert alert-success">
+                    <%= success %>
+                </div>
+            <% } %>
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-danger">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <% if (!locals.user) { %>
+                <div class="form-group">
+                    <label for="name">Name *</label>
+                    <input type="text" id="name" name="name" value="<%= typeof name !== 'undefined' ? name : '' %>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" value="<%= typeof email !== 'undefined' ? email : '' %>" required>
+                </div>
+            <% } else { %>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" value="<%= user.firstName %> <%= user.lastName %>" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" value="<%= user.email %>" disabled>
+                </div>
+            <% } %>
+
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <select id="priority" name="priority">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="subject">Subject *</label>
+                <input type="text" id="subject" name="subject" value="<%= typeof subject !== 'undefined' ? subject : '' %>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Message *</label>
+                <textarea id="message" name="message" rows="6" required><%= typeof message !== 'undefined' ? message : '' %></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="primary-button">Send Message</button>
+            </div>
+
+            <% if (locals.user) { %>
+                <div class="form-links">
+                    <p><a href="/my-tickets">View My Tickets</a></p>
+                </div>
+            <% } %>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navbarLinks').classList.toggle('active');
+            document.getElementById('authButtons').classList.toggle('active');
+        });
+    </script>
+
+        <footer class="footer">
+    <div class="footer-container">
+
+        
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-section">
+            <h3>Legal</h3>
+            <ul>
+                <li><a href="/terms">Terms of Service</a></li>
+                <li><a href="/privacy">Privacy Policy</a></li>
+                <li><a href="/return-policy">Return Policy</a></li>
+            </ul>
+        </div>
+        
+     
+    <div class="footer-bottom">
+        <p>&copy; <%= new Date().getFullYear() %> Chonccolate. All rights reserved.</p>
+    </div>
+</footer>
+</body>
+</html>

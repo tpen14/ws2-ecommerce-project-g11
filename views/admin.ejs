@@ -7,19 +7,19 @@
         <link rel="stylesheet" href="/css/styles.css">
     </head>
     <body class="admin-page">
-        <!-- Navigation Bar -->
-       <!-- Navigation Bar -->
+    <!-- Navigation Bar -->
     <nav class="navbar">
         <a href="/" class="navbar-brand">
             <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
             Chonccolate
         </a>
         
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        
         <ul class="navbar-links" id="navbarLinks">
-            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/">Home</a></li>
             <li><a href="/products">Products</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/contact">Contact</a></li>
+         
 
             <% if (locals.user && locals.user.role === 'customer') { %>
               <li><a href="/cart">Cart</a></li>
@@ -28,6 +28,8 @@
             <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
               <li><a href="/orders">Orders</a></li>
             <% } %>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
         </ul>
         <div class="auth-buttons" id="authButtons">
             <% if (locals.user) { %>
@@ -41,8 +43,8 @@
     </nav>
 
         <div class="admin-container">
-            <div class="admin-header">
-                <h1 class="admin-title">Admin Dashboard</h1>
+            <div class="dashboard-header">
+                <h1>Admin Dashboard</h1>
             </div>
             
             <!-- Alert messages -->
@@ -58,45 +60,59 @@
                 </div>
             <% } %>
             
-            <p class="admin-welcome">Welcome, <%= currentUser.firstName %> <%= currentUser.lastName %> (<%= currentUser.role %>)</p>
-            
-            <div class="user-count">
-                Total registered users: <span><%= users.length %></span>
+            <div class="user-info-card">
+                <p class="admin-welcome">Welcome, <strong><%= currentUser.firstName %> <%= currentUser.lastName %></strong> (<%= currentUser.role %>)</p>
+                
+                <div class="user-count">
+                    Total registered users: <span class="count-number"><%= users.length %></span>
+                </div>
             </div>
             
-            <table class="user-table">
-                <thead>
-                    <tr>
-                        <th>User ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% users.forEach(user => { %>
+            <div class="table-container">
+                <table class="user-table">
+                    <thead>
                         <tr>
-                            <td><%= user.userId %></td>
-                            <td><%= user.firstName %> <%= user.lastName %></td>
-                            <td><%= user.email %></td>
-                            <td><%= user.role %></td>
-                            <td><%= user.accountStatus %></td>
-                            <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
-                            <td class="user-actions">
-                                <a href="/users/edit/<%= user.userId %>" class="user-action edit-action">Edit</a>
-                                <% if (user.userId !== currentUser.userId) { %>
-                                    <a href="#" onclick="confirmDelete('<%= user.userId %>', '<%= user.firstName %>')" class="user-action delete-action">Delete</a>
-                                <% } %>
-                            </td>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
                         </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(user => { %>
+                            <tr>
+                                <td><%= user.userId %></td>
+                                <td><%= user.firstName %> <%= user.lastName %></td>
+                                <td><%= user.email %></td>
+                                <td>
+                                    <span class="role-badge <%= user.role === 'admin' ? 'role-admin' : 'role-customer' %>">
+                                        <%= user.role %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge <%= user.accountStatus === 'active' ? 'status-active' : 'status-inactive' %>">
+                                        <%= user.accountStatus %>
+                                    </span>
+                                </td>
+                                <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                                <td class="user-actions">
+                                    <a href="/users/edit/<%= user.userId %>" class="action-btn edit-btn">Edit</a>
+                                    <% if (user.userId !== currentUser.userId) { %>
+                                        <button onclick="confirmDelete('<%= user.userId %>', '<%= user.firstName %>')" class="action-btn delete-btn">Delete</button>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
 
-            <a href="/users/dashboard" class="back-link">← Back to Dashboard</a>
+            <div class="admin-actions">
+                <a href="/users/dashboard" class="back-link">← Back to Dashboard</a>
+            </div>
         </div>
         
         <!-- JavaScript for mobile menu toggle -->
@@ -118,8 +134,6 @@
         </script>
          <footer class="footer">
     <div class="footer-container">
-
-        
         <div class="footer-section">
             <h3>Quick Links</h3>
             <ul>
@@ -138,8 +152,8 @@
                 <li><a href="/return-policy">Return Policy</a></li>
             </ul>
         </div>
-        
-     
+    </div>
+    
     <div class="footer-bottom">
         <p>&copy; <%= new Date().getFullYear() %> Chonccolate. All rights reserved.</p>
     </div>

@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json()); // Add this line for JSON payloads
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
@@ -39,6 +40,7 @@ const productsRoute = require('./routes/products');
 const cartRoute = require('./routes/cart');
 const ordersRoute = require('./routes/orders');
 const adminReportsRoute = require('./routes/adminReports');
+const ticketsRoute = require('./routes/tickets');
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
@@ -46,6 +48,8 @@ app.use('/products', productsRoute);
 app.use('/cart', cartRoute);
 app.use('/orders', ordersRoute);
 app.use('/admin/reports', adminReportsRoute);
+app.use('/', ticketsRoute);
+app.use('/payment', require('./routes/payment'));
 // Backwards-compatible admin URLs
 app.get('/admin', (req, res) => res.redirect('/users/admin'));
 

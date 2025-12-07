@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
+            Chonccolate
+        </a>
+        
+        <button class="menu-toggle" id="menuToggle">☰</button>
+
+        <ul class="navbar-links" id="navbarLinks">
+            <li><a href="/">Home</a></li>
+            <li><a href="/products">Products</a></li>
+
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <li><a href="/cart">Cart</a></li>
+            <% } %>
+
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
+              <li><a href="/orders">Orders</a></li>
+            <% } %>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+
+        <div class="auth-buttons" id="authButtons">
+            <% if (locals.user) { %>
+                <a href="/users/dashboard" class="auth-button login">Dashboard</a>
+                <a href="/users/logout" class="auth-button register">Logout</a>
+            <% } else { %>
+                <a href="/users/login" class="auth-button login">Login</a>
+                <a href="/users/register" class="auth-button register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <div class="ticket-detail-container">
+        <div class="ticket-header-section">
+            <div class="ticket-header">
+                <h1><%= ticket.subject %></h1>
+                <div class="ticket-meta">
+                    <span class="badge priority-<%= ticket.priority %>"><%= ticket.priority.toUpperCase() %></span>
+                    <span class="badge status-<%= ticket.status.replace(/ /g, '-') %>"><%= ticket.status.toUpperCase() %></span>
+                </div>
+            </div>
+
+            <div class="ticket-info">
+                <div class="info-row">
+                    <span class="info-label">Ticket ID:</span>
+                    <span class="info-value"><%= ticket.ticketId %></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">From:</span>
+                    <span class="info-value"><%= ticket.name %> (<%= ticket.email %>)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Created:</span>
+                    <span class="info-value"><%= new Date(ticket.createdAt).toLocaleString() %></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Last Updated:</span>
+                    <span class="info-value"><%= new Date(ticket.updatedAt).toLocaleString() %></span>
+                </div>
+            </div>
+
+            <% if (user.role === 'admin') { %>
+                <form action="/tickets/<%= ticket.ticketId %>/status" method="POST" class="status-form">
+                    <label for="status">Update Status:</label>
+                    <select name="status" id="status">
+                        <% statuses.forEach(status => { %>
+                            <option value="<%= status %>" <%= ticket.status === status ? 'selected' : '' %>>
+                                <%= status.charAt(0).toUpperCase() + status.slice(1).replace(/ /g, ' ') %>
+                            </option>
+                        <% }) %>
+                    </select>
+                    <button type="submit" class="btn-small">Update Status</button>
+                </form>
+            <% } %>
+        </div>
+
+        <div class="message-box original-message">
+            <h3>Original Message</h3>
+            <p><%= ticket.message %></p>
+        </div>
+
+        <div class="replies-section">
+            <h3>Replies (<%= ticket.replies ? ticket.replies.length : 0 %>)</h3>
+            
+            <% if (ticket.replies && ticket.replies.length > 0) { %>
+                <div class="replies-list">
+                    <% ticket.replies.forEach(reply => { %>
+                        <div class="reply-box <%= reply.userRole === 'admin' ? 'admin-reply' : 'user-reply' %>">
+                            <div class="reply-header">
+                                <strong><%= reply.userName %></strong>
+                                <% if (reply.userRole === 'admin') { %>
+                                    <span class="badge admin-badge">Admin</span>
+                                <% } %>
+                                <span class="reply-date"><%= new Date(reply.createdAt).toLocaleString() %></span>
+                            </div>
+                            <p class="reply-message"><%= reply.message %></p>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <p class="no-replies">No replies yet.</p>
+            <% } %>
+
+            <% if (ticket.status !== 'closed') { %>
+                <form action="/tickets/<%= ticket.ticketId %>/reply" method="POST" class="reply-form">
+                    <h4>Add Reply</h4>
+                    <textarea name="message" rows="5" placeholder="Type your reply..." required></textarea>
+                    <button type="submit" class="primary-button">Send Reply</button>
+                </form>
+            <% } else { %>
+                <div class="ticket-closed-notice">
+                    <p>This ticket has been closed. No further replies can be added.</p>
+                </div>
+            <% } %>
+        </div>
+
+        <div class="ticket-actions">
+            <a href="<%= user.role === 'admin' ? '/admin/tickets' : '/my-tickets' %>" class="btn-secondary">
+                ← Back to Tickets
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navbarLinks').classList.toggle('active');
+            document.getElementById('authButtons').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

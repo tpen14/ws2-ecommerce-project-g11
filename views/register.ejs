@@ -81,16 +81,46 @@
                 </div>
                 <div class="password-match-message" id="passwordMatch"></div>
             </div> 
+            
             <div class="form-group">
-                <label for="contactNumber">Contact Number (optional)</label>
+                <label for="contactNumber">Contact Number</label>
                 <input type="tel" id="contactNumber" name="contactNumber" pattern="^(?:\+63|0)9[0-9]{9}$" placeholder="e.g. 09171234567 or +639171234567" value="<%= typeof contactNumber !== 'undefined' ? contactNumber : '' %>">
                 <div class="help-text">Format: 09XXXXXXXXX or +639XXXXXXXXX</div>
             </div>
 
             <div class="form-group">
-                <label for="address">Address (optional)</label>
-                <textarea id="address" name="address" rows="3" placeholder="Street, Barangay, City, Province" style="width:100%;padding:0.8rem;border:1px solid var(--light-brown);border-radius:4px;"><%= typeof address !== 'undefined' ? address : '' %></textarea>
+                <label for="region">Region</label>
+                <select id="region" name="region">
+                    <option value="">Select Region</option>
+                </select>
             </div>
+
+            <div class="form-group">
+                <label for="province">Province</label>
+                <select id="province" name="province" disabled>
+                    <option value="">Select Province</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="city">City/Municipality</label>
+                <select id="city" name="city" disabled>
+                    <option value="">Select City/Municipality</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="barangay">Barangay</label>
+                <select id="barangay" name="barangay" disabled>
+                    <option value="">Select Barangay</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="street">Street/Building/Unit</label>
+                <input type="text" id="street" name="street" placeholder="e.g. 123 Main Street, Bldg 5, Unit 201" value="">
+            </div>
+
             <!-- Turnstile widget -->
             <div class="cf-turnstile" data-sitekey="<%= process.env.TURNSTILE_SITEKEY %>"></div>
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -174,11 +204,11 @@
                 const passwordMatch = document.getElementById('passwordMatch');
                 if (passwordInput.value === confirmPasswordInput.value) {
                     passwordMatch.textContent = 'Passwords match';
-                    passwordMatch.style.color = '#155724';
+                    passwordMatch.style.color = 'var(--lol-green)';
                     return true;
                 } else {
                     passwordMatch.textContent = 'Passwords do not match';
-                    passwordMatch.style.color = '#721c24';
+                    passwordMatch.style.color = 'var(--lol-red)';
                     return false;
                 }
             }
@@ -225,6 +255,139 @@
                     alert('Please ensure your password meets all criteria and both passwords match.');
                 }
             });
+
+            // Philippine Address Cascading Dropdowns
+            let regions = [];
+            let provinces = [];
+            let cities = [];
+            let barangays = [];
+
+            const regionSelect = document.getElementById('region');
+            const provinceSelect = document.getElementById('province');
+            const citySelect = document.getElementById('city');
+            const barangaySelect = document.getElementById('barangay');
+
+            // Load all JSON data
+            async function loadAddressData() {
+                try {
+                    const [regionsData, provincesData, citiesData, barangaysData] = await Promise.all([
+                        fetch('/Addresses/region.json').then(r => r.json()),
+                        fetch('/Addresses/province.json').then(r => r.json()),
+                        fetch('/Addresses/city.json').then(r => r.json()),
+                        fetch('/Addresses/barangay.json').then(r => r.json())
+                    ]);
+
+                    regions = regionsData;
+                    provinces = provincesData;
+                    cities = citiesData;
+                    barangays = barangaysData;
+
+                    populateRegions();
+                } catch (error) {
+                    console.error('Error loading address data:', error);
+                }
+            }
+
+            function populateRegions() {
+                regionSelect.innerHTML = '<option value="">Select Region</option>';
+                regions.forEach(region => {
+                    const option = document.createElement('option');
+                    option.value = region.region_name;
+                    option.setAttribute('data-code', region.region_code);
+                    option.textContent = region.region_name;
+                    regionSelect.appendChild(option);
+                });
+            }
+
+            function populateProvinces(regionCode) {
+                provinceSelect.innerHTML = '<option value="">Select Province</option>';
+                provinceSelect.disabled = false;
+                citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+                citySelect.disabled = true;
+                barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                barangaySelect.disabled = true;
+
+                const filteredProvinces = provinces.filter(p => p.region_code === regionCode);
+                filteredProvinces.forEach(province => {
+                    const option = document.createElement('option');
+                    option.value = province.province_name;
+                    option.setAttribute('data-code', province.province_code);
+                    option.textContent = province.province_name;
+                    provinceSelect.appendChild(option);
+                });
+            }
+
+            function populateCities(provinceCode) {
+                citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+                citySelect.disabled = false;
+                barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                barangaySelect.disabled = true;
+
+                const filteredCities = cities.filter(c => c.province_code === provinceCode);
+                filteredCities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.city_name;
+                    option.setAttribute('data-code', city.city_code);
+                    option.textContent = city.city_name;
+                    citySelect.appendChild(option);
+                });
+            }
+
+            function populateBarangays(cityCode) {
+                barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                barangaySelect.disabled = false;
+
+                const filteredBarangays = barangays.filter(b => b.city_code === cityCode);
+                filteredBarangays.forEach(barangay => {
+                    const option = document.createElement('option');
+                    option.value = barangay.brgy_name;
+                    option.setAttribute('data-code', barangay.brgy_code);
+                    option.textContent = barangay.brgy_name;
+                    barangaySelect.appendChild(option);
+                });
+            }
+
+            regionSelect.addEventListener('change', function() {
+                if (this.value) {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const regionCode = selectedOption.getAttribute('data-code');
+                    populateProvinces(regionCode);
+                } else {
+                    provinceSelect.innerHTML = '<option value="">Select Province</option>';
+                    provinceSelect.disabled = true;
+                    citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+                    citySelect.disabled = true;
+                    barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                    barangaySelect.disabled = true;
+                }
+            });
+
+            provinceSelect.addEventListener('change', function() {
+                if (this.value) {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const provinceCode = selectedOption.getAttribute('data-code');
+                    populateCities(provinceCode);
+                } else {
+                    citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+                    citySelect.disabled = true;
+                    barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                    barangaySelect.disabled = true;
+                }
+            });
+
+            citySelect.addEventListener('change', function() {
+                if (this.value) {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const cityCode = selectedOption.getAttribute('data-code');
+                    populateBarangays(cityCode);
+                } else {
+                    barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                    barangaySelect.disabled = true;
+                }
+            });
+
+            // Load address data on page load
+            loadAddressData();
         });
     </script>
 </body>

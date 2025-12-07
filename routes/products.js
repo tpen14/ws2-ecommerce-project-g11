@@ -178,7 +178,7 @@ router.post('/add-product', upload.single('productImage'), async (req, res) => {
         const nextId = highestProduct.length > 0 ? highestProduct[0].productId + 1 : 1;
         
         // Prepare image path if file was uploaded
-        let imagePath = '/images/default-product.jpg'; // Default image
+        let imagePath = '/images/chonccolate.png'; // Default image
         if (req.file) {
             // Set the path relative to public folder for web access
             imagePath = '/uploads/' + req.file.filename;

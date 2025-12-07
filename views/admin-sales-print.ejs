@@ -4,53 +4,324 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><%= title %></title>
-  <link rel="stylesheet" href="/css/styles.css">
   <style>
+    :root {
+      --lol-black: #010A13;
+      --lol-dark-blue: #0A1428;
+      --lol-gold: #C89B3C;
+      --lol-gold-dark: #785A28;
+      --lol-white: #F0E6D2;
+      --lol-accent: #0BC6E3;
+      --lol-light-gray: #5B5A56;
+    }
+
     @media print {
       .no-print { display: none; }
+      body { background: white; }
     }
-    .report-header { display:flex; justify-content:space-between; align-items:center; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+      background: linear-gradient(135deg, var(--lol-black) 0%, var(--lol-dark-blue) 100%);
+      color: var(--lol-white);
+      padding: 40px;
+      line-height: 1.6;
+    }
+
+    .print-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(30, 35, 40, 0.95);
+      padding: 40px;
+      border-radius: 12px;
+      border: 2px solid var(--lol-gold);
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.9);
+    }
+
+    .report-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid var(--lol-gold);
+    }
+
+    .report-title {
+      flex: 1;
+    }
+
+    .report-title h1 {
+      color: var(--lol-gold);
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
+    }
+
+    .report-title .company-name {
+      color: var(--lol-accent);
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 5px;
+    }
+
+    .report-filters {
+      color: var(--lol-light-gray);
+      font-size: 0.95rem;
+      margin-top: 10px;
+    }
+
+    .report-filters strong {
+      color: var(--lol-gold);
+    }
+
+    .report-summary {
+      text-align: right;
+      background: rgba(200, 155, 60, 0.1);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--lol-gold);
+    }
+
+    .summary-item {
+      margin-bottom: 10px;
+    }
+
+    .summary-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .summary-label {
+      color: var(--lol-light-gray);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .summary-value {
+      color: var(--lol-gold);
+      font-size: 1.8rem;
+      font-weight: bold;
+      display: block;
+      margin-top: 5px;
+    }
+
+    .summary-value.orders {
+      font-size: 1.4rem;
+      color: var(--lol-accent);
+    }
+
+    .report-date {
+      text-align: center;
+      color: var(--lol-light-gray);
+      font-size: 0.9rem;
+      margin: 20px 0;
+      padding: 10px;
+      border-top: 1px solid var(--lol-light-gray);
+      border-bottom: 1px solid var(--lol-light-gray);
+    }
+
+    .sales-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      background: rgba(1, 10, 19, 0.6);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .sales-table thead {
+      background: linear-gradient(135deg, var(--lol-gold) 0%, var(--lol-gold-dark) 100%);
+    }
+
+    .sales-table th {
+      padding: 15px;
+      text-align: left;
+      color: var(--lol-black);
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.9rem;
+      border: none;
+    }
+
+    .sales-table th.text-right {
+      text-align: right;
+    }
+
+    .sales-table tbody tr {
+      border-bottom: 1px solid rgba(200, 155, 60, 0.2);
+      transition: all 0.2s;
+    }
+
+    .sales-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .sales-table tbody tr:hover {
+      background: rgba(200, 155, 60, 0.1);
+    }
+
+    .sales-table td {
+      padding: 12px 15px;
+      color: var(--lol-white);
+    }
+
+    .sales-table td.text-right {
+      text-align: right;
+      font-weight: 600;
+    }
+
+    .sales-table td.amount {
+      color: var(--lol-gold);
+      font-weight: bold;
+    }
+
+    .sales-table td.orders-count {
+      color: var(--lol-accent);
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: var(--lol-light-gray);
+      font-style: italic;
+    }
+
+    .report-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid var(--lol-gold);
+      text-align: center;
+      color: var(--lol-light-gray);
+      font-size: 0.85rem;
+    }
+
+    .print-info {
+      text-align: center;
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(200, 155, 60, 0.1);
+      border-radius: 8px;
+      border: 1px solid var(--lol-gold);
+      color: var(--lol-accent);
+    }
+
+    @media print {
+      body {
+        background: white;
+        color: black;
+        padding: 20px;
+      }
+
+      .print-container {
+        background: white;
+        border: 2px solid #C89B3C;
+        box-shadow: none;
+      }
+
+      .report-title h1 {
+        color: #C89B3C;
+        text-shadow: none;
+      }
+
+      .summary-value {
+        color: #C89B3C;
+      }
+
+      .sales-table td {
+        color: black;
+      }
+
+      .print-info {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
-  <div style="padding:20px;">
+  <div class="print-container">
     <div class="report-header">
-      <div>
-        <h2>Sales Report</h2>
-        <div>Filters: From <%= filters.start||'--' %> To <%= filters.end||'--' %> Status: <%= filters.status||'All' %></div>
+      <div class="report-title">
+        <div class="company-name">🍫 Chonccolate</div>
+        <h1>Sales Report</h1>
+        <div class="report-filters">
+          <strong>Period:</strong> <%= filters.start ? new Date(filters.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Start' %> 
+          to 
+          <%= filters.end ? new Date(filters.end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'End' %>
+          <br>
+          <strong>Order Status:</strong> <%= filters.status ? filters.status.charAt(0).toUpperCase() + filters.status.slice(1) : 'All' %>
+        </div>
       </div>
-      <div>
-        <strong>Total Sales:</strong> ₱<%= (summary.totalSales||0).toFixed(2) %><br>
-        <strong>Orders:</strong> <%= summary.ordersCount||0 %>
+      <div class="report-summary">
+        <div class="summary-item">
+          <span class="summary-label">Total Sales</span>
+          <span class="summary-value">₱<%= (summary.totalSales || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Total Orders</span>
+          <span class="summary-value orders"><%= summary.ordersCount || 0 %></span>
+        </div>
       </div>
     </div>
 
-    <hr>
+    <div class="report-date">
+      Generated on <%= new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %> 
+      at <%= new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %>
+    </div>
 
-    <table style="width:100%;border-collapse:collapse;">
+    <table class="sales-table">
       <thead>
         <tr>
-          <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Date</th>
-          <th style="text-align:right;padding:8px;border-bottom:1px solid #ddd;">Total Sales</th>
-          <th style="text-align:right;padding:8px;border-bottom:1px solid #ddd;">Orders</th>
+          <th>Date</th>
+          <th class="text-right">Total Sales</th>
+          <th class="text-right">Orders</th>
         </tr>
       </thead>
       <tbody>
-        <% daily.forEach(r => { %>
+        <% if (daily && daily.length > 0) { %>
+          <% daily.forEach(record => { %>
+            <tr>
+              <td><%= new Date(record._id).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %></td>
+              <td class="text-right amount">₱<%= (record.total || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+              <td class="text-right orders-count"><%= record.orders || 0 %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
           <tr>
-            <td style="padding:8px;border-bottom:1px solid #f1f1f1;"><%= r._id %></td>
-            <td style="padding:8px;border-bottom:1px solid #f1f1f1;text-align:right;">₱<%= (r.total||0).toFixed(2) %></td>
-            <td style="padding:8px;border-bottom:1px solid #f1f1f1;text-align:right;"><%= r.orders %></td>
+            <td colspan="3" class="no-data">No sales data available for the selected period and filters.</td>
           </tr>
-        <% }) %>
+        <% } %>
       </tbody>
     </table>
 
+    <div class="report-footer">
+      <p>Chonccolate E-Commerce Platform | Admin Sales Report</p>
+      <p>&copy; <%= new Date().getFullYear() %> Chonccolate. All rights reserved.</p>
+    </div>
+
+    <div class="print-info no-print">
+      <p>📄 Ready to print! Press <strong>Ctrl+P</strong> (Windows) or <strong>Cmd+P</strong> (Mac) to print this report.</p>
+    </div>
   </div>
+
   <script>
     // Auto open print dialog when page loads
     window.onload = function() {
-      window.print();
+      // Small delay to ensure styles are fully loaded
+      setTimeout(function() {
+        window.print();
+      }, 500);
     };
   </script>
 </body>

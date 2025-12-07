@@ -5,21 +5,17 @@
   <title><%= title %></title>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body class="has-hero">
+<body class="order-detail-page">
   <!-- Navigation Bar -->
     <nav class="navbar">
         <a href="/" class="navbar-brand">
             <img src="/images/chonccolate.png" alt="Chonccolate" class="navbar-logo">
             Chonccolate
         </a>
-
-        <button class="menu-toggle" id="menuToggle">☰</button>
-
+        
         <ul class="navbar-links" id="navbarLinks">
-            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/">Home</a></li>
             <li><a href="/products">Products</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/contact">Contact</a></li>
 
             <% if (locals.user && locals.user.role === 'customer') { %>
               <li><a href="/cart">Cart</a></li>
@@ -28,6 +24,8 @@
             <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
               <li><a href="/orders">Orders</a></li>
             <% } %>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
         </ul>
         <div class="auth-buttons" id="authButtons">
             <% if (locals.user) { %>
@@ -107,8 +105,8 @@
 
         <% if (locals.user && locals.user.role !== 'admin') { %>
           <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
-            <% if (order.orderStatus === 'to_pay') { %>
-              <a href="/checkout/pay/<%= order.orderId %>" class="primary-button">Pay Now</a>
+            <% if (order.orderStatus === 'to pay') { %>
+              <a href="/payment/pay/<%= order.orderId %>" class="primary-button">Pay Now</a>
             <% } %>
             <a href="/orders" class="secondary-button">Back</a>
           </div>

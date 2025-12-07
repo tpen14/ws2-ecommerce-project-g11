@@ -106,7 +106,7 @@ router.post('/checkout', async (req, res) => {
         subtotal: i.subtotal
       })),
       totalAmount: cart.totalAmount,
-      orderStatus: 'to_pay',
+      orderStatus: 'to pay',
       createdAt: new Date(),
       updatedAt: new Date()
     };
