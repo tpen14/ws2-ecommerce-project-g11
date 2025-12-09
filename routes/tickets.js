@@ -169,6 +169,33 @@ router.post('/tickets/:ticketId/status', async (req, res) => {
     }
 });
 
+// Update ticket priority (admin only)
+router.post('/tickets/:ticketId/priority', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') {
+        return res.status(403).send('Unauthorized');
+    }
+
+    try {
+        const db = req.app.locals.client.db(req.app.locals.dbName);
+        const newPriority = req.body.priority;
+        const validPriorities = ['low', 'medium', 'high', 'urgent'];
+
+        if (!validPriorities.includes(newPriority)) {
+            return res.redirect(`/tickets/${req.params.ticketId}?error=Invalid priority`);
+        }
+
+        await db.collection('tickets').updateOne(
+            { ticketId: req.params.ticketId },
+            { $set: { priority: newPriority, updatedAt: new Date() } }
+        );
+
+        res.redirect(`/tickets/${req.params.ticketId}`);
+    } catch (err) {
+        console.error('Error updating ticket priority:', err);
+        res.redirect(`/tickets/${req.params.ticketId}?error=Error updating priority`);
+    }
+});
+
 // Add reply to ticket
 router.post('/tickets/:ticketId/reply', async (req, res) => {
     if (!req.session.user) {

@@ -20,9 +20,6 @@
             <li><a href="/">Home</a></li>
             <li><a href="/products">Products</a></li>
 
-            <% if (locals.user && locals.user.role === 'customer') { %>
-              <li><a href="/cart">Cart</a></li>
-            <% } %>
 
             <% if (locals.user && (locals.user.role === 'admin' || locals.user.role === 'customer')) { %>
               <li><a href="/orders">Orders</a></li>
@@ -31,7 +28,16 @@
             <li><a href="/contact">Contact</a></li>
         </ul>
 
-        <div class="auth-buttons" id="authButtons">
+       <div class="auth-buttons" id="authButtons">
+            <% if (locals.user && locals.user.role === 'customer') { %>
+              <a href="/cart" class="cart-icon-link" title="Shopping Cart">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="9" cy="21" r="1"></circle>
+                  <circle cx="20" cy="21" r="1"></circle>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+              </a>
+            <% } %>
             <% if (locals.user) { %>
                 <a href="/users/dashboard" class="auth-button login">Dashboard</a>
                 <a href="/users/logout" class="auth-button register">Logout</a>
@@ -72,17 +78,30 @@
             </div>
 
             <% if (user.role === 'admin') { %>
-                <form action="/tickets/<%= ticket.ticketId %>/status" method="POST" class="status-form">
-                    <label for="status">Update Status:</label>
-                    <select name="status" id="status">
-                        <% statuses.forEach(status => { %>
-                            <option value="<%= status %>" <%= ticket.status === status ? 'selected' : '' %>>
-                                <%= status.charAt(0).toUpperCase() + status.slice(1).replace(/ /g, ' ') %>
-                            </option>
-                        <% }) %>
-                    </select>
-                    <button type="submit" class="btn-small">Update Status</button>
-                </form>
+                <div class="admin-controls">
+                    <form action="/tickets/<%= ticket.ticketId %>/status" method="POST" class="status-form">
+                        <label for="status">Update Status:</label>
+                        <select name="status" id="status">
+                            <% statuses.forEach(status => { %>
+                                <option value="<%= status %>" <%= ticket.status === status ? 'selected' : '' %>>
+                                    <%= status.charAt(0).toUpperCase() + status.slice(1).replace(/ /g, ' ') %>
+                                </option>
+                            <% }) %>
+                        </select>
+                        <button type="submit" class="btn-small">Update Status</button>
+                    </form>
+
+                    <form action="/tickets/<%= ticket.ticketId %>/priority" method="POST" class="status-form">
+                        <label for="priority">Update Priority:</label>
+                        <select name="priority" id="priority">
+                            <option value="low" <%= ticket.priority === 'low' ? 'selected' : '' %>>Low</option>
+                            <option value="medium" <%= ticket.priority === 'medium' ? 'selected' : '' %>>Medium</option>
+                            <option value="high" <%= ticket.priority === 'high' ? 'selected' : '' %>>High</option>
+                            <option value="urgent" <%= ticket.priority === 'urgent' ? 'selected' : '' %>>Urgent</option>
+                        </select>
+                        <button type="submit" class="btn-small">Update Priority</button>
+                    </form>
+                </div>
             <% } %>
         </div>
 

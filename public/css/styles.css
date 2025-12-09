@@ -218,6 +218,49 @@ body.verification-page {
   box-shadow: 0 0 20px rgba(10, 200, 185, 0.5);
 }
 
+/* Cart Icon Styling */
+.cart-icon-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--lol-gold);
+  border-radius: 4px;
+  color: var(--lol-gold);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.cart-icon-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(200, 155, 60, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.cart-icon-link:hover::before {
+  left: 100%;
+}
+
+.cart-icon-link:hover {
+  background: var(--lol-gold);
+  color: var(--lol-black);
+  box-shadow: 0 0 20px rgba(200, 155, 60, 0.5);
+  transform: translateY(-2px);
+}
+
+.cart-icon-link svg {
+  position: relative;
+  z-index: 1;
+}
+
 .menu-toggle {
   display: none;
   background: none;
@@ -4020,4 +4063,40 @@ button:disabled,
   .form-wrapper {
     padding: 20px 15px;
   }
+}
+
+
+/* Admin Controls */
+.admin-controls {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.status-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.status-form label {
+    color: var(--lol-white);
+    font-weight: bold;
+}
+
+.status-form select {
+    padding: 0.5rem;
+    border: 2px solid var(--lol-gold);
+    background: var(--lol-gray);
+    color: var(--lol-white);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.status-form select:focus {
+    outline: none;
+    border-color: var(--lol-accent);
+    box-shadow: 0 0 10px rgba(10, 200, 185, 0.3);
 }
